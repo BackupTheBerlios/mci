@@ -1,0 +1,73 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(hostname | cut -d"." -f2-)
+
+BASE_CONFIG=/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns
+
+if [ ! -d "${BASE_CONFIG}" ] 
+then
+	echo "${BASE_CONFIG} dir does not exists"
+	exit 1
+fi
+
+cd ${BASE_CONFIG}
+
+if [ ! -d "${BASE_CONFIG}/server" ]
+then
+	echo "${BASE_CONFIG}/server dir does not exists"
+	exit 1
+fi
+
+rm /etc/crontab.d/tinydns
+
+cd ${BASE_CONFIG}/server
+
+for i in $(find * -type f -maxdepth 0 -mindepth 0)
+do
+	cd ${BASE_CONFIG}/server
+	IP=$(cat ${i})
+	IF=${i}
+	mkdir -p /var/log/djbdns/tinydns-${IF}
+	chown _syslogd:_syslogd /var/log/djbdns/tinydns-${IF}
+	chmod 700 /var/log/djbdns/tinydns-${IF}
+
+	mkdir -p /etc/djbdns/tinydns-${IF}
+	chown root:wheel /etc/djbdns/tinydns-${IF}
+	chmod 1755 /etc/djbdns/tinydns-${IF}
+
+        mkdir -p /etc/djbdns/tinydns-${IF}/log
+        chown root:wheel /etc/djbdns/tinydns-${IF}/log
+        chmod 755 /etc/djbdns/tinydns-${IF}/log
+
+        mkdir -p /etc/djbdns/tinydns-${IF}/root
+        chown root:wheel /etc/djbdns/tinydns-${IF}/root
+        chmod 755 /etc/djbdns/tinydns-${IF}/root
+
+        mkdir -p /etc/djbdns/tinydns-${IF}/env
+        chown root:wheel /etc/djbdns/tinydns-${IF}/env
+        chmod 755 /etc/djbdns/tinydns-${IF}/env
+
+	echo ${IP} > /etc/djbdns/tinydns-${IF}/env/IP
+	chmod 644 /etc/djbdns/tinydns-${IF}/env/IP
+
+	echo "/etc/djbdns/tinydns-${IF}/root" > /etc/djbdns/tinydns-${IF}/env/ROOT
+	chmod 644 /etc/djbdns/tinydns-${IF}/env/ROOT
+
+	cp /var/cfengine/inputs/config/features/dnsServer/scripts/run.log /etc/djbdns/tinydns-${IF}/log/run
+	chmod 755 /etc/djbdns/tinydns-${IF}/log/run
+
+	cp /var/cfengine/inputs/config/features/dnsServer/scripts/run /etc/djbdns/tinydns-${IF}/run
+	chmod 755 /etc/djbdns/tinydns-${IF}/run
+
+	ksh /var/cfengine/inputs/config/features/dnsServer/scripts/make-data ${IF}
+	
+	cd /service
+	ln -sf /etc/djbdns/tinydns-${IF} tinydns-${IF} 
+	cd /etc/djbdns/tinydns-${IF}/log
+	ln -sf /var/djbdns/tinydns-${IF} main
+
+	echo "0 0 * * * svc -t /service/tinydns-${IF}/log" >> /etc/crontab.d/tinydns
+	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dns/logging/mail_logs_tinydns.sh ${IF}" >> /etc/crontab.d/tinydns
+	
+done

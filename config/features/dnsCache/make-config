@@ -1,0 +1,138 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(hostname | cut -d"." -f2-)
+
+BASE_CONFIG=/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns
+
+if [ ! -d "${BASE_CONFIG}" ] 
+then
+	echo "${BASE_CONFIG} dir does not exists"
+	exit 1
+fi
+
+cd ${BASE_CONFIG}
+
+if [ ! -d "${BASE_CONFIG}/cache" ]
+then
+	echo "${BASE_CONFIG}/cache dir does not exists"
+	exit 1
+fi
+
+rm /etc/crontab.d/dnscache
+
+cd ${BASE_CONFIG}/cache
+
+for i in $(find * -type f -maxdepth 0 -mindepth 0)
+do
+	cd ${BASE_CONFIG}/cache
+	IP=$(cat ${i})
+	IF=${i}
+	mkdir -p /var/log/djbdns/dnscache-${IF}
+	chown _syslogd:_syslogd /var/log/djbdns/dnscache-${IF}
+	chmod 700 /var/log/djbdns/dnscache-${IF}
+
+	mkdir -p /etc/djbdns/dnscache-${IF}
+	chown root:wheel /etc/djbdns/dnscache-${IF}
+	chmod 1755 /etc/djbdns/dnscache-${IF}
+
+        mkdir -p /etc/djbdns/dnscache-${IF}/log
+        chown root:wheel /etc/djbdns/dnscache-${IF}/log
+        chmod 755 /etc/djbdns/dnscache-${IF}/log
+
+        mkdir -p /etc/djbdns/dnscache-${IF}/root
+        chown root:wheel /etc/djbdns/dnscache-${IF}/root
+        chmod 755 /etc/djbdns/dnscache-${IF}/root
+
+        mkdir -p /etc/djbdns/dnscache-${IF}/root/ip
+        chown root:wheel /etc/djbdns/dnscache-${IF}/root/ip
+        chmod 755 /etc/djbdns/dnscache-${IF}/root/ip
+
+        mkdir -p /etc/djbdns/dnscache-${IF}/root/servers
+        chown root:wheel /etc/djbdns/dnscache-${IF}/root/servers
+        chmod 755 /etc/djbdns/dnscache-${IF}/root/servers
+
+        mkdir -p /etc/djbdns/dnscache-${IF}/env
+        chown root:wheel /etc/djbdns/dnscache-${IF}/env
+        chmod 755 /etc/djbdns/dnscache-${IF}/env
+
+	echo ${IP} > /etc/djbdns/dnscache-${IF}/env/IP
+	chmod 644 /etc/djbdns/dnscache-${IF}/env/IP
+
+	echo "/etc/djbdns/dnscache-${IF}/root" > /etc/djbdns/dnscache-${IF}/env/ROOT
+	chmod 644 /etc/djbdns/dnscache-${IF}/env/ROOT
+
+	echo "0.0.0.0" > /etc/djbdns/dnscache-${IF}/env/IPSEND
+	chmod 644 /etc/djbdns/dnscache-${IF}/env/IPSEND
+        
+	echo "3000000" > /etc/djbdns/dnscache-${IF}/env/DATALIMIT
+        chmod 644 /etc/djbdns/dnscache-${IF}/env/DATALIMIT
+
+        echo "1000000" > /etc/djbdns/dnscache-${IF}/env/CACHESIZE
+        chmod 644 /etc/djbdns/dnscache-${IF}/env/CACHESIZE
+
+	cp /var/cfengine/inputs/config/features/dnsCache/root.servers \
+	/etc/djbdns/dnscache-${IF}/root/servers/@
+
+	if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/servers" ]
+	then
+		cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/servers
+		for j in $(find * -type f -maxdepth 0 -mindepth 0)
+		do
+			cp ${j} /etc/djbdns/dnscache-${IF}/root/servers/${j}
+		done
+	fi
+
+        if [ -d "/var/cfengine/inputs/config/sites/${SITE}/dns/servers" ]
+        then
+                cd /var/cfengine/inputs/config/sites/${SITE}/dns/servers
+                for j in $(find * -type f -maxdepth 0 -mindepth 0)
+                do
+                        cp ${j} /etc/djbdns/dnscache-${IF}/root/servers/${j}
+                done
+        fi
+
+	if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/cache/${IF}-ip ]
+	then
+		cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/cache/${IF}-ip
+		for j in $(find * -type f -maxdepth 0 -mindepth 0)
+		do
+			cp ${j} /etc/djbdns/dnscache-${IF}/root/ip/${j}
+			chmod 644 /etc/djbdns/dnscache-${IF}/root/ip/${j}
+		done
+	fi
+
+        if [ -d "/var/cfengine/inputs/config/sites/${SITE}/dns/cache/${IF}-ip ]
+        then
+                cd /var/cfengine/inputs/config/sites/${SITE}/dns/cache/${IF}-ip
+                for j in $(find * -type f -maxdepth 0 -mindepth 0)
+                do
+                        cp ${j} /etc/djbdns/dnscache-${IF}/root/ip/${j}
+                        chmod 644 /etc/djbdns/dnscache-${IF}/root/ip/${j}
+                done
+        fi
+
+	SEED=/etc/djbdns/dnscache-${IF}/seed
+	rm -f $SEED
+	touch $SEED
+	chmod 400 $SEED
+	chown named:named $SEED
+	dd if=/dev/urandom of=$SEED bs=128 count=1 2>/dev/null
+	
+	chmod -R 644 /etc/djbdns/dnscache-${IF}/root/servers/*
+
+	cp /var/cfengine/inputs/config/features/dnsCache/scripts/run.log /etc/djbdns/dnscache-${IF}/log/run
+	chmod 755 /etc/djbdns/dnscache-${IF}/log/run
+
+	cp /var/cfengine/inputs/config/features/dnsCache/scripts/run /etc/djbdns/dnscache-${IF}/run
+	chmod 755 /etc/djbdns/dnscache-${IF}/run
+
+	cd /service
+	ln -sf /etc/djbdns/dnscache-${IF} dnscache-${IF} 
+	cd /etc/djbdns/dnscache-${IF}/log
+	ln -sf /var/djbdns/dnscache-${IF} main
+
+	echo "0 0 * * * svc -t /service/dnscache-${IF}/log" >> /etc/crontab.d/dnscache
+	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dns/logging/mail_logs_dnscache.sh ${IF}" >> /etc/crontab.d/dnscache
+	
+done

@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+exec envuidgid named envdir ./env softlimit -d900000 tinydns
+
