@@ -1,4 +1,4 @@
-3,24,44 * * * * fetchmail -as -t 20 -f /$(hostname | cut -d"." -f2-)/me/secrets/fetchmail/fetchmailrc 2>&1 > /dev/null
+3,24,44 * * * * if [ -f "/$(hostname | cut -d"." -f2-)/me/secrets/fetchmail/fetchmailrc" ]; then fetchmail -as -t 20 -f /$(hostname | cut -d"." -f2-)/me/secrets/fetchmail/fetchmailrc 2>&1 > /dev/null; fi
 0 0 * * *	svc -t /service/dovecot/log
 0 0 * * *	svc -t /service/qmail-smtpd/log
 30 * * * *	/bin/ksh /var/cfengine/inputs/config/features/mailServer/mail_dovecot_logs.sh
