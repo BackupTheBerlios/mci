@@ -1,0 +1,65 @@
+#!/bin/sh
+
+site=${1}
+host=${2}
+
+rm -f /etc/crontab.d/vpnServer
+touch /etc/crontab.d/vpnServer
+
+cd /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn
+
+for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v .svn | grep -v CVS)
+do
+	(cd /dev && ./MAKEDEV ${i})
+	DEVICE="${i}"
+   ROOT=/etc/openvpn/openvpn-${DEVICE}
+	echo "0 0 * * * svc -t /service/openvpn-${DEVICE}/log" >> /etc/crontab.d/vpnServer
+	echo "47 * * * * /bin/sh /var/cfengine/inputs/config/features/vpnClient/mail_openvpn_logs.sh openvpn-${DEVICE}" >> /etc/crontab.d/vpnServer
+   DEST=${ROOT}/root/openvpn.conf
+   NEW=${dest}.new
+   PORT=$(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/${i}/port)
+   virtualIP="$(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/${i}/ipv4/address)"
+	virtualClientIP="$(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/${i}/ipv4/dest)"
+   mkdir -p ${ROOT}/root ${ROOT}/log /var/log/openvpn/openvpn-${DEVICE} &&
+   chmod 1755 ${ROOT} &&
+   chmod 755 ${ROOT}/log &&
+   chmod 700 /var/log/openvpn/openvpn-${DEVICE} &&
+   chmod 755 /var/log/openvpn &&
+   chown _syslogd:_syslogd /var/log/openvpn/openvpn-${DEVICE} &&
+   rm -rf ${NEW} &&
+	touch ${NEW} &&
+   cp /var/cfengine/inputs/config/features/vpnServer/vpn.log ${ROOT}/log/run &&
+   chmod 755 ${ROOT}/log/run &&
+   cp /var/cfengine/inputs/config/features/vpnServer/run ${ROOT}/run &&
+   chmod 755 ${ROOT}/run &&
+   ln -fns ${ROOT} /service/openvpn-${DEVICE} &&
+   ln -fns /var/log/openvpn/openvpn-${DEVICE} ${ROOT}/log/main &&
+   touch /etc/pf.conf.d/intranet/tcp-ipv4/${PORT} &&
+   touch /etc/pf.conf.d/internet/tcp-ipv4/${PORT} && 
+	echo "port ${PORT}" >> ${NEW} &&
+	echo "dev ${DEVICE}" >> ${NEW} &&
+	echo "tls-server" >> ${NEW} &&
+   echo "proto tcp-server" >> ${NEW} &&
+	echo "ca /etc/ssl/certs/ca.crt" >> ${NEW} &&
+	echo "cert /etc/ssl/certs/me.crt" >> ${NEW} &&
+	echo "key /${site}/${host}/secrets/ssl/host/me.key" >> ${NEW} &&
+	echo "dh /${site}/${host}/secrets/ssl/dh1024.pem" >> ${NEW} &&
+	echo "verb 0" >> ${NEW} &&
+   echo "ifconfig ${virtualIP} ${virtualClientIP}" >> ${NEW} &&
+	echo "comp-lzo" >> ${NEW} &&
+	echo "replay-persist ${ROOT}/root/replay-persist" >> ${NEW}
+	echo "tls-auth /${site}/${host}/secrets/ssl/openvpn.key 0" >> ${NEW}
+	echo "tun-mtu 1500" >> ${NEW}
+	echo "tun-mtu-extra 32" >> ${NEW}
+
+echo "ping 10" >> ${NEW}
+echo "ping-restart 15" >> ${NEW}
+echo "ping-timer-rem" >> ${NEW}
+
+   mv ${NEW} ${DEST}
+done
+
+
+
+
+

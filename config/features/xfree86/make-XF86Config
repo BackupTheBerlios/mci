@@ -1,0 +1,6 @@
+#!/bin/ksh
+
+mkdir -p /etc/X11/XF86Config.d &&
+cd /etc/X11/XF86Config.d &&
+cat * > /etc/X11/XF86Config &&
+chmod 644 /etc/X11/XF86Config

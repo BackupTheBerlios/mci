@@ -1,0 +1,29 @@
+    <Group>
+      <Popup/>
+      <Control id="-2" popup="0">
+        <Command term="0" sn="1">mozilla</Command>
+        <Tooltip>Web Browser</Tooltip>
+        <Icon id="-1">/usr/local/share/icons/hicolor/48x48/apps/web-browser.png</Icon>
+      </Control>
+    </Group>
+    <Group>
+      <Popup/>
+      <Control id="-2" popup="0">
+        <Command term="0" sn="1">gaim</Command>
+        <Tooltip>Chatten</Tooltip>
+        <Icon id="-1">/usr/local/share/pixmaps/gaim.png</Icon>
+      </Control>
+    </Group>
+    <Group>
+      <Popup/>
+      <Control id="-2" popup="0">
+        <Command term="0" sn="1">mozilla -mail</Command>
+        <Tooltip>Email</Tooltip>
+        <Icon id="-1">/var/cfengine/inputs/config/features/internetApps/mail.png</Icon>
+      </Control>
+    </Group>    
+    <Group>
+      <Popup/>
+      <Control id="-1" filename="libseparator.so"/>
+    </Group>   
+  

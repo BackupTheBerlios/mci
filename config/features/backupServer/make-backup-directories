@@ -1,0 +1,10 @@
+#!/bin/sh
+
+SITE=$1
+
+cd /var/cfengine/inputs/config/hosts/${SITE}
+
+for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS)
+do
+	mkdir -p /backup/${SITE}/${i}
+done

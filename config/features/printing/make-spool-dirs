@@ -1,0 +1,13 @@
+#!/bin/sh
+
+printers=$(/bin/sh /var/cfengine/inputs/config/features/printing/get-printers)
+
+for i in $printers
+do
+	mkdir -p /var/spool/output/${i} &&
+	mkdir -p /var/spool/output/${i}_win &&
+	chown root:daemon /var/spool/output/${i} &&
+	chown root:daemon /var/spool/output/${i}_win &&
+	chmod 775 /var/spool/output/${i} &&
+	chmod 775 /var/spool/output/${i}_win
+done

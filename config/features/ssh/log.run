@@ -1,0 +1,2 @@
+#!/bin/sh
+exec setuidgid _syslogd multilog t s400000 n100 `date +./main/log.%Y-%m-%d`

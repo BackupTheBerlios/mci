@@ -1,0 +1,27 @@
+#!/bin/sh
+
+prefix="/var/cfengine/inputs/config"
+dest="${prefix}/../package.list"
+
+rm -f $dest ${dest}.tmp
+touch $dest ${dest}.tmp
+
+host=$(hostname -s)
+site=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+touch ${prefix}/sites/$site/features.list
+touch ${prefix}/hosts/$site/$host/features.list
+
+features=$(cat ${prefix}/sites/$site/features.list ${prefix}/hosts/$site/$host/features.list | sort | uniq )
+
+for i in $features
+do
+	if [ -f "${prefix}/features/$i/package.list" ]
+	then
+		cat "${prefix}/features/$i/package.list" >> ${dest}.tmp
+		echo "" >> ${dest}.tmp
+	fi
+done
+
+cat ${dest}.tmp | sed -e 's| ||' | cut -d":" -f1 | sort | uniq > ${dest} &&
+rm -rf ${dest}.tmp

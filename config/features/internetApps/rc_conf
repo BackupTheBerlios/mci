@@ -1,0 +1,1 @@
+#shlib_dirs="${shlib_dirs} /usr/local/lib/evolution/2.0" 

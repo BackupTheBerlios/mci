@@ -1,0 +1,24 @@
+#!/bin/sh
+
+TESTDIR=/var/cfengine/binpatches
+
+mkdir -p $TESTDIR
+
+VERSION=$(cat /etc/VERSION)
+
+FTP="ftp://gold.intra.net/pub/OpenBSD/$VERSION/binary_patches/i386/"
+
+list=$(ftp -Vai ${FTP} << __EOT
+ls
+quit
+__EOT)
+
+for i in $(echo $list | sort)
+do
+	if [ ! -f "$TESTDIR/$i" ] && [ "$(echo $i | grep binpatch)" ]
+	then
+		echo "Installing $i"
+		ftp -ai -o - -V -m "${FTP}${i}" | tar zxphf - -C / &&
+		touch $TESTDIR/$i
+	fi
+done

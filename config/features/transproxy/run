@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+exec /usr/local/sbin/tproxy -t -p -s 8080 -d -r nobody $(cat env/HOST) $(cat env/PORT)
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+/usr/local/bin/numlockx on
+
+/usr/X11R6/bin/xsetroot -solid "#76848F"
+
+exit 0

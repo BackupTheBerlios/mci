@@ -1,0 +1,5 @@
+expat:textproc/expat
+db:databases/db/v4
+libiconv:converters/libiconv
+libxml:textproc/libxml
+subversion:devel/subversion

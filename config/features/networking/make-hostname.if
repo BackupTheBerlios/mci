@@ -1,0 +1,45 @@
+#!/bin/sh
+
+cd /var/cfengine/inputs/config/hosts/${1}/${2}/network
+
+for i in $(find * -type d -maxdepth 1 -mindepth 1 | grep -v .svn | grep -v CVS)
+do
+	cd /var/cfengine/inputs/config/hosts/${1}/${2}/network
+	interface=$(echo $i | cut -d"/" -f2)
+   rm -f /etc/hostname.${interface}
+   touch /etc/hostname.${interface}
+   echo "up" >> /etc/hostname.${interface}
+   if [ -d "$i/ipv4" ]
+   then
+		cd $i/ipv4
+		if [ "$i" == "local/lo1" ] && [ -f "address" ]
+		then	
+			echo "route -qn add -host $(cat address) $(cat address)" > /etc/rc.local.d/00_routing
+		fi
+		if [ -f "address" ] 
+		then
+			if [ -f "netmask" ]
+			then
+				netmask=$(cat netmask)
+		 	else	
+				netmask=""
+			fi
+			if [ -f "broadcast" ]
+			then
+				broadcast=$(cat broadcast)
+			else
+				broadcast=""
+			fi
+         if [ -f "dest" ]
+         then
+         	dest="dest $(cat dest)"
+         else
+         	dest=""
+         fi	
+   		echo "inet $(cat address) $netmask $broadcast" >> /etc/hostname.$interface
+		echo "$dest" >> /etc/hostname.$interface
+		else
+			echo "dhcp" >> /etc/hostname.$interface
+		fi
+	fi
+done 

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+host=$(hostname -s)
+site=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+KEY_DIR="/${site}/${host}/secrets/ssl"                                                              
+
+if test $KEY_DIR; then
+    openssl dhparam -out ${KEY_DIR}/dh1024.pem 1024
+else
+    echo you must define KEY_DIR
+fi 

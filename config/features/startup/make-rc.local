@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd /etc/rc.local.d
+
+echo "" > /etc/rc.local
+
+for i in $(find * -type f)
+do
+	cat $i >> /etc/rc.local
+	echo "" >> /etc/rc.local
+done
+

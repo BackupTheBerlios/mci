@@ -1,0 +1,2 @@
+0 	0	*	*	*	svc -t /service/sshd/log
+13	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/ssh/mail_logs_sshd.sh

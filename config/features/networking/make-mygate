@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -f "/var/cfengine/inputs/config/hosts/${1}/${2}/network/gateway" ]
+then
+	cp /var/cfengine/inputs/config/hosts/${1}/${2}/network/gateway /etc/mygate
+	chmod 644 /etc/mygate
+	chown root:wheel /etc/mygate 
+fi

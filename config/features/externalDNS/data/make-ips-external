@@ -1,0 +1,20 @@
+#!/bin/sh
+
+site=${1}
+host=${2}
+
+touch /etc/djbdns/dnscache-external/root/ip/$(/bin/cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/local/lo0/ipv4/address)
+touch /etc/djbdns/dnscache-external/root/ip/$(/bin/cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/local/lo1/ipv4/address)
+touch /etc/djbdns/dnscache-external/root/ip/$(/bin/cat /var/cfengine/inputs/config/sites/${site}/network/intranet/ipv4/prefix | sed -e 's|\.$||')
+
+if [ -d " /var/cfengine/inputs/config/hosts/${site}/${host}/network/intranet" ]
+then
+	cd /var/cfengine/inputs/config/hosts/${site}/${host}/network/intranet
+	for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS)
+	do
+		if [ -f "$i/ipv4/address" ]
+		then
+			touch /etc/djbdns/dnscache-external/root/ip/$(/bin/cat $i/ipv4/address)
+		fi
+	done
+fi 

@@ -1,0 +1,9 @@
+gettext:devel/gettext
+libiconv:converters/libiconv
+glib2:devel/glib2
+atk:devel/atk
+pango:devel/pango
+png:graphics/png
+tiff:graphics/tiff
+jpeg:graphics/jpeg
+gtk+2:x11/gtk+2

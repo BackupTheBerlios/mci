@@ -1,0 +1,13 @@
+#!/bin/sh
+
+GCONF="/usr/local/bin/gconftool-2 --direct --config-source=xml:readwrite:/var/db/gconf/gconf.xml.local"
+
+#${GCONF} --set  --type string 	"/apps/epiphany/directories/downloads_folder" "~/Mijn Downloads"
+#${GCONF} --set  --type bool 	"/apps/epiphany/web/use_own_fonts" "true"
+
+${GCONF} --set --type bool 	"/apps/mail-notification/commands/clicked/enabled" "true"
+${GCONF} --set --type string 	"/apps/mail-notification/commands/clicked/command" "mozilla -mail"
+${GCONF} --set --type int 	"/apps/mail-notification/delay/minutes" "1"
+#${GCONF} --set --type string 	"/desktop/gnome/url-handlers/mailto/command" "mozilla -mail %s"
+#${GCONF} --set --type string 	"/destkop/gnome/url-handlers/http/command" "mozilla %s"
+chmod 644 $(find /var/db/gconf -type f) 

@@ -1,0 +1,2 @@
+0 0 * * *	svc -t /service/openvpn/log
+56 * * * *	/bin/sh /var/cfengine/inputs/config/features/vpnClient/mail_openvpn_logs.sh openvpn

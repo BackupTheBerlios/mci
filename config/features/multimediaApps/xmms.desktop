@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Music Player
+Comment=XMMS Music Player
+Type=Application
+Categories=GTK;Application;Multimedia;
+Exec=xmms
+Terminal=false

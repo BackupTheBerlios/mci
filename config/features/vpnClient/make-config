@@ -1,0 +1,37 @@
+#!/bin/sh
+
+DEST="/etc/openvpn/root/openvpn.conf"
+NEW="${dest}.new"
+
+site=${1}
+host=${2}
+
+virtualIP="$(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/tun0/ipv4/address)"
+virtualServerIP="$(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/tun0/ipv4/dest)"
+virtualSubnet="$(cat /var/cfengine/inputs/config/sites/${site}/network/vpn/ipv4/subnet)"
+
+rm -rf ${NEW}
+touch ${NEW}
+
+echo "float" >> ${NEW}
+echo "port $(cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/vpn/tun0/port)" >> ${NEW}
+echo "proto tcp-client" >> ${NEW}
+echo "dev tun0" >> ${NEW}
+echo "tls-client" >> ${NEW}
+echo "ca /etc/ssl/certs/ca.crt" >> ${NEW}
+echo "cert /etc/ssl/certs/me.crt" >> ${NEW}
+echo "key /${site}/${host}/secrets/ssl/host/me.key" >> ${NEW}
+echo "verb 0" >> ${NEW}
+echo "comp-lzo" >> ${NEW} &&
+echo "ifconfig ${virtualIP} ${virtualServerIP}" >> ${NEW}
+echo "route ${virtualSubnet} 255.255.255.0 ${virtualIP}" >> ${NEW}
+echo "replay-persist /etc/openvpn/root/replay-persist" >> ${NEW}
+echo "tls-auth /${site}/${host}/secrets/ssl/openvpn.key 1" >> ${NEW}
+echo "tun-mtu 1500" >> ${NEW}
+echo "tun-mtu-extra 32" >> ${NEW}
+
+echo "ping 10" >> ${NEW}
+echo "ping-restart 15" >> ${NEW}
+echo "ping-timer-rem" >> ${NEW}
+
+mv ${NEW} ${DEST}

@@ -1,0 +1,14 @@
+# This is not really a .desktop file like the rest, but it's useful to treat
+# it as such
+#
+# Props go out to Guido Sanchez, whose theme guiss-gdm I borrowed some files
+# from ;)
+
+[GdmGreeterTheme]
+Encoding=UTF-8
+Greeter=bijou.xml
+Name=Bijou
+Description=Ominous, highly polished buttons
+Author=Alex Fraser
+Copyright=(c) 2002 Alex Fraser
+Screenshot=screenshot.png

@@ -1,0 +1,6 @@
+Section "ServerLayout"
+	Identifier	"Layout"
+	Screen	"Screen"
+	InputDevice	"Keyboard"
+	InputDevice	"Mouse"
+EndSection

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+rm -f /etc/hosts.lpd
+touch /etc/hosts.lpd
+
+intranet=$(cat /var/cfengine/inputs/config/sites/$(hostname | cut -d"." -f2-)/network/intranet/ipv4/prefix)
+vpn=$(cat /var/cfengine/inputs/config/sites/$(hostname | cut -d"." -f2-)/network/vpn/ipv4/prefix)
+
+for i in $(jot -s " " 254 1 254 1)
+do
+	echo "${intranet}${i}" >> /etc/hosts.lpd
+	echo "${vpn}${i}" >> /etc/hosts.lpd
+done

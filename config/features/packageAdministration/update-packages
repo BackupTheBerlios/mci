@@ -1,0 +1,49 @@
+#!/bin/sh
+
+VERSION=$(cat /etc/VERSION)
+
+AVAILABLE="/var/cfengine/inputs/available.package.list"
+LIST="/var/cfengine/inputs/package.list"
+
+FTP="ftp://gold.$(hostname | cut -d"." -f2-)/pub/OpenBSD/$VERSION/packages/i386/"
+
+ksh /var/cfengine/inputs/config/features/packageAdministration/update-package-list
+ksh /var/cfengine/inputs/config/features/packageAdministration/update-available-package-list $FTP
+
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin"
+
+function scan_list {
+
+for i in $(cat /var/cfengine/inputs/package.list)
+do
+	cd /var/db/pkg
+	if [ $(find * -type d -maxdepth 0 -mindepth 0 -name "${i}-[0-9]*" | wc -l) -eq 0 ]
+	then
+		if [ "$(grep $i-[0-9].* $AVAILABLE)" ]
+		then
+			LATEST_VERSION=$(grep $i-[0-9].* $AVAILABLE | tail -1)
+			pkg_add ${FTP}${LATEST_VERSION}
+		else
+			echo "$i is not available, but required for this machine to be installed !"
+		fi
+	else
+		if [ $(grep -c "^$i-[0-9].*" $AVAILABLE) -gt 0 ]
+		then
+		
+			LATEST_VERSION=$(grep "^$i-[0-9].*" $AVAILABLE | sort | tail -1 | rev | cut -d"." -f 2- | rev)
+			if [ $(find * -type d -maxdepth 0 -mindepth 0 -name "${LATEST_VERSION}" | wc -l) -eq 0 ]
+			then
+				pkg_delete -q -F dependencies ${i}
+				pkg_add -q -r -F ${FTP}${LATEST_VERSION}
+			fi
+		else
+			echo "$i is not available, but already installed !"
+		fi
+	fi
+done
+
+}
+
+scan_list
+scan_list
+scan_list

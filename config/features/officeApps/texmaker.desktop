@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=TeXMaker
+Icon=/var/cfengine/inputs/config/features/officeApps/texmaker48x48.png
+Comment=LaTeX environment
+Type=Application
+Categories=Qt;Application;Office;
+Exec=texmaker
+Terminal=false

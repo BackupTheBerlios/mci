@@ -1,0 +1,8 @@
+#!/bin/sh
+
+rm -rf /etc/fstab.d/homeDirs &&
+touch /etc/fstab.d/homeDirs &&
+dir=/$(hostname | cut -d"." -f2-)/$(dnsname $(dnsip shared-files.$(hostname | cut -d"." -f2-)) | cut -d"." -f1)/home/users
+mkdir -p /home/users 
+echo "homedirs.$(hostname | cut -d"." -f2-):$dir /home/users nfs rw,nodev,nosuid 0 0" >> /etc/fstab.d/homeDirs 
+

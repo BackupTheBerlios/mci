@@ -1,0 +1,21 @@
+#!/bin/sh
+
+file="/etc/fstab.d/standard"
+
+rm -f $file.new
+touch $file.new
+
+IFS="
+"
+
+for i in $(cat $file)
+do
+	if [ $(echo $i | grep ^/dev/wd | grep -v softdep | wc -l) -gt 0 ]
+	then
+		echo $i | sed -e 's|rw|rw,softdep|' >> $file.new
+	else
+		echo $i >> $file.new
+	fi 
+done
+
+mv $file.new $file

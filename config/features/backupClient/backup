@@ -1,0 +1,33 @@
+#!/bin/sh
+
+INTERVAL=${1}
+
+HOST=$(hostname -s)
+SITE=$(hostname | cut -d"." -f2-)
+
+RSYNC_OPTIONS="--quiet --delete --owner --group  --perms --compress --recursive --links --times --numeric-ids --timeout=4800"
+export RSYNC_RSH="ssh -i /${SITE}/${HOST}/secrets/backup_key/backup_key"
+LOCAL="/${SITE}/${HOST}/"
+REMOTE="backup.${SITE}:/backup/${SITE}/${HOST}/"
+
+if [ -f "/var/backups/restored" ] && [ -n "${INTERVAL}" ]
+then
+   if [ "${INTERVAL}" == "Weekly" ] && [ ! -f "/var/backups/$(date +%U.%Y)" ]
+   then
+	sleep $(jot -nr 1 10 1800)
+   	#echo "Starting ${INTERVAL} backup ..." &&
+	rsync ${RSYNC_OPTIONS} --delete ${LOCAL} ${REMOTE} &&
+	touch /var/backups/$(date +%U.%Y)
+      	#echo "backup finished"
+   elif [ "${INTERVAL}" == "Daily" ] && [ ! -f "/var/backups/$(date +%j.%Y)" ]
+   then
+	sleep $(jot -nr 1 10 1800)
+   	#echo "Starting ${INTERVAL} backup ..." &&
+   	rsync ${RSYNC_OPTIONS} ${LOCAL} ${REMOTE} &&
+   	touch /var/backups/$(date +%j.%Y)
+        #echo "backup finished"
+   fi 
+   touch /var/backups/restored
+fi 
+ 
+ 

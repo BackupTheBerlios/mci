@@ -1,0 +1,8 @@
+#!/bin/sh
+
+site=${1}
+host=${2}
+
+touch /etc/djbdns/dnscache/root/ip/$(/bin/cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/local/lo0/ipv4/address)
+touch /etc/djbdns/dnscache/root/ip/$(/bin/cat /var/cfengine/inputs/config/hosts/${site}/${host}/network/local/lo1/ipv4/address)
+ 

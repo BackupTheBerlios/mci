@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+sleep 1
+exec tcpserver -qDHlRX -c 10 -t 7 0 445 /usr/local/libexec/smbd

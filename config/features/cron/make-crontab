@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -d "/etc/crontab.d" ]
+then
+	cd /etc
+	cat crontab.d/* > crontab
+	chmod 600 crontab
+	chown root:crontab crontab
+	mv crontab /var/cron/tabs/root
+	touch /var/cron/tabs
+fi

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+. /etc/profile
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+user=$(cat /${SITE}/${HOST}/secrets/internetGateway/username)
+passwd=$(cat /${SITE}/${HOST}/secrets/internetGateway/password)
+FTPHOST=$(cat /var/cfengine/inputs/config/sites/${SITE}/internetGateway/ftpHost)
+
+if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/internet" ]
+then
+	cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/internet
+	IF=$(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS | tail -1) 
+else
+	echo "can not find internet interface"
+	exit 1
+fi
+
+IP=$(ifconfig ${IF} | grep "inet " | cut -d" " -f2)
+
+/usr/local/sbin/noip2 -i ${IP} -c /${SITE}/${HOST}/secrets/internetGateway/no-ip2.conf 2> /dev/null
+
+echo ${IP} > /tmp/ip.html
+curl -sS -T /tmp/ip.html -u $user:$passwd ${FTPHOST} 
+rm /tmp/ip.html
+echo -n '<html><head><meta http-equiv="refresh" content="1; url=https://' > /tmp/webmail.html
+echo -n ${IP} >> /tmp/webmail.html
+echo ':7358/webmail"></head><body>Binnen enkele seconden wordt je doorverwezen naar login pagina ...</body></html>' >> /tmp/webmail.html
+curl -sS -T /tmp/webmail.html -u $user:$passwd ${FTPHOST} 
+rm /tmp/webmail.html

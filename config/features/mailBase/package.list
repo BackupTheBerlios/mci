@@ -1,0 +1,4 @@
+daemontools:uopp/sysutils/daemontools
+ucspi-tcp:uopp/net/ucspi-tcp
+qmail:uopp/mail/qmail
+qmailanalog:uopp/mail/qmailanalog

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd /var/cfengine/inputs/config/hosts/$(hostname | cut -d"." -f2-)
+
+find * -type d -maxdepth 3 -mindepth 3 | grep -v CVS | grep "printing/printer" | cut -d"/" -f4

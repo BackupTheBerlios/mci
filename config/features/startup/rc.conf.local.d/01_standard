@@ -1,0 +1,8 @@
+sshd_flags="NO"
+sendmail_flags="NO"
+inetd="NO"
+ntpd="NO"
+portmap="YES"
+shlib_dirs="/usr/local/lib /usr/X11R6/lib"
+
+

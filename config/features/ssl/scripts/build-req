@@ -1,0 +1,13 @@
+#!/bin/sh
+
+host=$(hostname -s)
+site=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+KEY_DIR="/${site}/${host}/secrets/ssl/host"                                                              
+
+if test $KEY_DIR; then
+    cd $KEY_DIR && \
+    openssl req -days 3650 -nodes -new -keyout me.key -out ${host}.csr
+else
+    echo you must define KEY_DIR
+fi

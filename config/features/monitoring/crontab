@@ -1,0 +1,2 @@
+30      1       *       *       *       /bin/sh /etc/daily 2>&1 | mail -s "`/bin/hostname` daily output" root
+

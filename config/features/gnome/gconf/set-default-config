@@ -1,0 +1,17 @@
+#!/bin/sh
+
+SITE=$1
+HOST=$2
+
+GCONF="/usr/local/bin/gconftool-2 --direct --config-source=xml:readwrite:/var/db/gconf/gconf.xml.local"
+
+${GCONF} --set --type bool "/apps/gnome-terminal/profiles/Default/use_system_font"  "false" 
+${GCONF} --set --type string "/apps/gnome-terminal/profiles/Default/font" "Monospace 13"
+${GCONF} --set --type string "/apps/gnome-terminal/profiles/Default/scrollback_position" "right"
+${GCONF} --set --type int "/apps/gnome-terminal/profiles/Default/scrollback_lines" "9999"
+${GCONF} --set --type bool "/apps/gnome-terminal/profiles/Default/login_shell" "true"
+${GCONF} --set --type string "/apps/gnome-terminal/profiles/Default/exit_action" "close"
+
+${GCONF} --set --type string "/desktop/gnome/background/picture_filename" "/${SITE}/${HOST}/shared/Afbeeldingen/Achtergronden/GNOME-Footsteps.png"
+
+chmod 644 $(find /var/db/gconf -type f)

@@ -1,0 +1,7 @@
+[GdmGreeterTheme]
+Greeter=BSD.xml
+Name=Just BSD 
+Description=Virtual BSD Daemon.
+Author=Adriel Cardenas Guzman
+Copyright=GNOME Project (C) 2003
+Screenshot=screenshot.png

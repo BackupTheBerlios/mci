@@ -1,0 +1,4 @@
+0 	0	*	*	*	svc -t /service/dnscache/log
+0	0	*	*	*	svc -t /service/tinydns/log
+10	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/dns/logging/mail_logs_dnscache.sh
+11	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/dns/logging/mail_logs_tinydns.sh

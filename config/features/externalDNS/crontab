@@ -1,0 +1,2 @@
+0 	0	*	*	*	svc -t /service/dnscache-external/log
+10	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/externalDNS/logging/mail_logs_dnscache.sh

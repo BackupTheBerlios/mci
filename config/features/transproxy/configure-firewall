@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mkdir -p /etc/pf.conf.d/intranet/rdr-tcp-ipv4/80
+
+SUBNET=$(cat /var/cfengine/inputs/config/sites/$(hostname | cut -d"." -f2-)/network/intranet/ipv4/subnet)
+
+echo "! ${SUBNET}" > /etc/pf.conf.d/intranet/rdr-tcp-ipv4/80/to
+echo "${SUBNET}" > /etc/pf.conf.d/intranet/rdr-tcp-ipv4/80/from
+
+echo "127.0.0.1 port 8080" > /etc/pf.conf.d/intranet/rdr-tcp-ipv4/80/redirect
+
+

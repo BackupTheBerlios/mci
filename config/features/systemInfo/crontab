@@ -1,0 +1,1 @@
+30      3       *       *       6       /bin/sh /etc/weekly 2>&1 | mail -s "`/bin/hostname` weekly output" root

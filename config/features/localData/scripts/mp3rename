@@ -1,0 +1,671 @@
+#!/usr/bin/perl
+###################################################
+# mp3rename
+# A customizable program to clean up mp3 names,
+# and organize them by artist.
+# Version 3
+#
+# For more information, see either the README file
+# or the website at http://mp3rename.sourceforge.net.
+#
+###################################################
+# 
+# Written by
+# Payton Swick
+# Last Updated 7/2/02
+#
+# Read the CHANGELOG file for updates.
+#
+###################################################
+
+use Term::ReadLine;
+use MP3::Info;
+use Getopt::Long;
+Getopt::Long::config("bundling");
+
+# The version number.
+$version = "3.0b2";
+
+# Print out extra debugging info.
+$verbose = 0;
+
+# Prompt for changes.
+$prompt = 1;
+
+# The default format strings to use.
+$default_format = "%aUF%-%sUF%.mp3";
+$default_format_track = "%t%-%aUF%-%mUF%-%sUF%.mp3";
+
+# This should remain blank.
+$format = "";
+
+# The default config file location.
+$rcfile = $ENV{'HOME'}.'/.mp3renamerc';
+
+# -------------------------------------------------------------------------
+# End of standard options. You shouldn't have to change anything below here.
+# -------------------------------------------------------------------------
+
+# The default config file to write if one
+# does not exist.
+$default_rcfile = "mp3rename config Version 3
+# Comments can be specified after hash (#) signs.
+# Settings are set using XML, between tags.
+# Most options can be set using either 0 (off) or 1 (on).
+# Example: <prompt> 0 </prompt> sets prompting off (the -P option)
+
+<format> ".$default_format." </format>
+<track> ".$default_format_track." </track>
+<prompt> 1 </prompt>
+<verbose> 0 </verbose>
+<set_id3> 0 </set_id3>
+<new_id3> 0 </new_id3>
+<name_id3> 0 </name_id3>
+";
+
+# The help message.
+$help_message = '
+mp3rename
+Custom mp3 renaming and organization utility.
+Usage: mp3rename [OPTIONS] FILENAME...
+Options: (long and short)
+-h, --help                  Print this message and exit.
+-v, --version               Print the version number and exit.
+    --format_help           Print a tutorial on format strings and exit.
+-V, --verbose               Increment the level of verbosity.
+    --config    <filename>  Use <filename> instead of $HOME/.mp3renamerc
+-f, --format     <string>   Format mp3s according to <string>
+                                if they have no track number.
+-t, --track      <string>   Format mp3s according to <string> 
+                                if they have a track number.
+-r, --recursive             Recursively operate on directories.
+-i, --set_id3               Set id3 tags to match the retrieved data.
+-I, --new_id3               Set id3 tags only if there is no current tag.
+-n, --name_id3              Use id3 tag data to set the filename.
+-p, --prompt                Prompt for each change (default).
+-P, --no_prompt             Don\'t prompt for each change.
+';
+
+# The format help message.
+$format_message = "
+mp3rename format string help:
+
+Characters in the format string will be treated
+normally in the new file name except for characters
+between percent (%) signs (called meta-characters).
+Between the signs, there must be a single lowercase
+letter representing the part of the title (artist, song, etc)
+followed by any number of uppercase options for that part,
+provided that they are not contradictory.
+(Example: %aUL% will print the artist name with underscores,
+ all lowercase.)
+There are two format strings needed for mp3rename to run:
+1. the normal format string (specify with -f)
+2. the track format string (specify with -t)
+The track format string is used if a track number is
+detected in a filename.
+
+The default normal format string is: '".$default_format."',
+and the default track format string is: '".$default_format_track."'.
+
+Available Formats:
+%t%         Track number, 2 digits.
+
+%a%         Artist, as it is.
+%aU%        Artist, with underscores instead of spaces.
+%aS%        Artist, with spaces instead of underscores.
+%aN%        Artist, without spaces.
+%aX%        Artist, without spaces or underscores.
+%aF%        Artist, first letter of each word uppercase.
+%aL%        Artist, lowercase.
+
+%s%         Song name, as it is.
+%sU%        Song name, with underscores instead of spaces.
+%sS%        Song name, with spaces instead of underscores.
+%sN%        Song name, without spaces.
+%sX%        Song name, without spaces or underscores.
+%sF%        Song name, first letter of each word uppercase.
+%sL%        Song name, lowercase.
+
+%m%         Album, as it is.
+%mU%        Album, with underscores instead of spaces.
+%mS%        Album, with spaces instead of underscores.
+%mN%        Album, without spaces.
+%mX%        Album, without spaces or underscores.
+%mF%        Album, first letter of each word uppercase.
+%mL%        Album, lowercase.
+    ";
+
+# --------------- Beginning of Execution ---------------------
+
+# Get the options.
+GetOptions("help|h" => \$opt_h,
+	   "version|v" => \$opt_v,
+	   "verbose|V+" => \$opt_V,
+	   "format_help" => \$format_help,
+	   "config=s" => \$rcfile,
+	   "format|f=s" => \$opt_f,
+	   "track|t=s" => \$opt_t,
+	   "recursive|r" => \$recursive,
+	   "set_id3|i" => \$opt_i,
+	   "new_id3|I" => \$opt_I,
+	   "name_id3|n" => \$opt_n,
+	   "prompt|p" => \$opt_p,
+	   "no_prompt|P" => \$opt_P
+	   );
+$verbose = $opt_V if ($opt_V);
+
+# Read the config file.
+readConfig();
+
+# Re-set the options, to override the config file.
+$verbose = $opt_V if ($opt_V);
+$default_format = $opt_f if ($opt_f);
+$default_format_track = $opt_t if ($opt_t);
+$set_id3 = $opt_i if ($opt_i);
+$new_id3 = $opt_I if ($opt_I);
+$name_id3 = $opt_n if ($opt_n);
+$prompt = 1 if ($opt_p);
+$prompt = 0 if ($opt_P);
+
+if ($opt_h)
+{
+   print $help_message;
+   exit;
+}
+
+if ($format_help)
+{
+    print $format_message;
+    exit;
+}
+
+die "mp3rename version ".$version."\n" if ($opt_v);
+
+begin(@ARGV);
+
+# ------------------ Beginning of Functions --------------------
+
+# Read and parse the config file.
+# If it does not exist, create it
+# with the default options.
+sub readConfig
+{
+    if (!-e $rcfile)
+    {
+	print "Creating new config file at ".$rcfile."\n" if ($verbose >= 1);
+	open (CONFIG, '>'.$rcfile) or die "Cannot create config file ".$rcfile.": ".$!;
+	print CONFIG $default_rcfile;
+	close (CONFIG);
+    }
+    else
+    {
+	open (CONFIG, $rcfile) or die "Cannot read config file ".$rcfile.": ".$!;
+	if (<CONFIG> !~ /mp3rename config Version 3/i)
+	{
+	    print "Config file is incorrect version. Using default options.\n";
+	    return;
+	}
+
+	print "Reading config file at ".$rcfile."\n" if ($verbose >= 1);
+	foreach (<CONFIG>)
+	{
+	    next if (/^\s*\#/); # Ignore comments.
+	    print "\tFound line: ".$_."\n" if ($verbose >= 3);
+	    $default_format = $+ if (/\<format\>\s*(.+?)\s*\<\/format\>/i);
+	    $default_format_track = $+ if (/\<track\>\s*(.+?)\s*\<\/track\>/i);
+	    $prompt = $+ if (/\<prompt\>\s*(.+?)\s*\<\/prompt\>/i);
+	    $verbose = $+ if (/\<verbose\>\s*(.+?)\s*\<\/verbose\>/i);
+	    $set_id3 = $+ if (/\<set_id3\>\s*(.+?)\s*\<\/set_id3\>/i);
+	    $new_id3 = $+ if (/\<new_id3\>\s*(.+?)\s*\<\/new_id3\>/i);
+	    $name_id3 = $+ if (/\<name_id3\>\s*(.+?)\s*\<\/name_id3\>/i);
+	}
+	close (CONFIG);
+    }
+}
+
+# Pull apart the filename and get
+# the artist, title, track, and album.
+# Return them in a hash table.
+sub parseName
+{
+    my $filename = shift;
+    $_ = $filename;
+    my %song;
+    
+    # Change %20's and _20's to spaces.
+    s/\%20|_20/ /g;
+
+    # Remove the .mp3 if it exists.
+    s/\.mp3\z//i; 
+
+    # Remove BAD things.
+    my $bad_strings = "\!|\^|^-|\"";
+    s/$bad_strings//g;
+
+    # Find the Track number.
+    my $non_track = '[^0-9A-Za-z ]?';
+    my $track_match = '\d{1,2}';
+    my $track_order = "$non_track($track_match)$non_track";
+    my $track_number = 0;
+    if (/$track_order/)
+    {
+	print "Found a track: ".$+."\n" if ($verbose >= 2);
+	$song{'track'} = $+;
+#	s/$song{'track'}//; # Remove the track from the file name.
+	$format = $default_format_track;
+	print "After track removal, filename is: ".$_."\n" if ($verbose >= 3);
+    }
+    else
+    {
+	$format = $default_format;
+    }
+
+    # Find the Artist, Title, and Album.
+    # This is tricky because there is no way to differentiate between
+    # the three other than their order. Usually, ARTIST comes before
+    # TITLE, but ALBUM can come before or after ARTIST. For this reason,
+    # the string here can be edited, but the default assumes ARTIST
+    # before ALBUM before TITLE.
+    my $non_match = '[\-:;\(\)\[\]\.]+';
+    my $artist_match = '[0-9A-Za-z_\', ]+';
+    my $album_match = '[0-9A-Za-z_\', ]+';
+    my $title_match = '[0-9A-Za-z_\', ]+';
+    my $name_order1 = "($artist_match)$non_match($album_match)$non_match($title_match)($non_match)?";
+    my $name_order2 = "($artist_match)$non_match($title_match)($non_match)?";
+
+    # First check for all three.
+    # If the check fails, try for just
+    # the artist and the title.
+    print "Trying name order1: ".$name_order1."\n" if ($verbose >= 3);
+    print "or name order2    : ".$name_order2."\n" if ($verbose >= 3);
+    if (/$name_order1/i)
+    {
+	print "\tOrder 1 succeeded!\n" if ($verbose >= 3);
+	$song{'artist'} = $1;
+	$song{'album'} = $2;
+	$song{'title'} = $3;
+    }
+    elsif (/$name_order2/i)
+    {
+	print "\tOrder 2 succeeded!\n" if ($verbose >= 3);
+	$song{'artist'} = $1;
+	$song{'title'} = $2;
+    }
+    else
+    {
+	print "Both name orders failed.\n" if ($verbose >= 2);
+	print "Could not parse filename: ".$_."\n";
+	$song{'all'} = $filename;
+	return %song;
+    }
+
+    if ($verbose >= 1)
+    {
+	print "\tTrack:  ".$song{'track'}."\n" if ($song{'track'});
+	print "\tArtist: ".$song{'artist'}."\n";
+	print "\tAlbum:  ".$song{'album'}."\n" if ($song{'album'});
+	print "\tTitle:  ".$song{'title'}."\n";
+	print "\n";
+    }
+
+    return %song;
+}
+
+# Puts the filename back together
+# using the format string and returns
+# it as a string.
+sub buildName
+{
+    my %song = @_;
+    my $new_filename = $format;
+    
+    # Get each meta-character.
+    my @metas = $format =~ /(\%\w+\%)/g;
+
+    # Replace each meta-character with
+    # the appropriate string.
+    foreach my $meta (@metas)
+    {
+	my $trans = transMeta($meta, %song);
+	if ($trans)
+	{
+	    print "\tReplacing ".$meta." with ".$trans."\n" if ($verbose >= 2);
+	    $new_filename =~ s/$meta/$trans/g;
+	    print "After replacement: ".$new_filename."\n" if ($verbose >= 2);
+	}
+	else
+	{
+	    print "Found no replacement for the meta-character '".$meta."'.\n" if ($verbose >= 1);
+	    $new_filename =~ s/$meta//g;
+	}
+    }
+    print "buildName generated: ".$new_filename."\n" if ($verbose >= 2);
+    return $new_filename;
+}
+
+# Takes a meta-character and the song hash
+# and returns the appropriate string from
+# the hash.
+sub transMeta
+{
+    my $meta = shift;
+    my %song = @_;
+    
+    $meta =~ /\%(\w+)\%/;
+    $_ = $+;
+    my $string = 0;
+    my $metamatch = 0;
+    print "\tParsing meta: ".$meta."\n" if ($verbose >= 3);
+    SWITCH: {
+	# Find which meta-character is being used.
+	if (/^t\z/)
+	{
+	    if ($song{'track'})
+	    {
+		$string = $song{'track'};
+		$string = '0'.$string if ($string =~ /^\d\z/);
+	    }
+	    last SWITCH;
+	}
+	if (/^a/)
+	{
+	    $string = $song{'artist'} if ($song{'artist'});
+	    $metamatch = 1 if ($song{'artist'});
+	}
+	if (/^s/)
+	{
+	    $string = $song{'title'} if ($song{'title'});
+	    $metamatch = 1 if ($song{'title'});
+	}
+	if (/^m/)
+	{
+	    $string = $song{'album'} if ($song{'album'});
+	    $metamatch = 1 if ($song{'album'});
+	}
+	if (/^[a-z]([A-Z]+)\z/)
+	{
+	    # Modify the meta-characters using whatever options were specified.
+	    $options = $+;
+	    print "\tOptions found: ".$options."\n" if ($verbose >= 3);
+	    $string = ucFirstName($string) if ($options =~ /F/);
+	    $string =~ s/\s+/_/g if ($options =~ /U/);
+	    $string =~ s/([a-z])([A-Z])/$1_$2/g if ($options =~ /U/);
+	    $string =~ s/_/ /g if ($options =~ /S/);
+	    $string =~ s/\s+//g if ($options =~ /N/);
+	    $string =~ s/\s+|_//g if ($options =~ /X/);
+	    $string =~ lc($string) if ($options =~ /L/);
+	    last SWITCH;
+	}
+	die "The meta-character '".$meta."' was not found.\n" unless ($metamatch);
+	$string = 0 unless ($metamatch);
+    }
+    print "\tMeta found: ".$string."\n" if ($verbose >= 3);
+    return $string;
+}
+
+# Uppercases the first letter of every word
+# in a string and returns that string.
+sub ucFirstName
+{
+    my $string = shift;
+    $string =~ s/(?<=\A)(\w)/uc($1)/eg;
+    $string =~ s/(?<=\s)(\w)/uc($1)/eg;
+    $string =~ s/(?<=\_)(\w)/uc($1)/eg;
+    return $string;
+}
+
+
+# Does all the name changes
+# to a string. Returns the
+# new string.
+sub changeName
+{
+    my $name1 = shift;
+    print "Old Info:\n" if ($verbose >= 1);
+    my %song = parseName($name1);
+    %song = getId3($name1) if ($name_id3 and checkId3($name1));
+
+    my $name2 = buildName(%song) unless ($song{'all'});
+
+    print "New Info:\n" if ($verbose >= 1);
+    my %song = parseName($name2);
+    if ($new_id3)
+    {
+	if (checkId3($name1))
+	{
+	    setId3($name1, %song);
+	}
+	else
+	{
+	    print "Leaving old id3 tag.\n" if ($verbose >= 1);
+	}
+    }
+    elsif ($set_id3)
+    {
+	if (checkId3($name1) and $prompt)
+	{
+	    %song = editId3(%song);
+	    if ($song{'skip'} == 1)
+	    {
+		print "Leaving old id3 tag.\n" if ($verbose >= 1);
+	    }
+	    else
+	    {
+		setId3($name1, %song);
+	    }
+	}
+	else
+	{
+	    setId3($name1, %song);
+	}
+    }
+
+    return $name2;
+}
+
+# Changes a list of filenames
+# passed to it in a list.
+sub changeAll
+{
+    my @files = @_;
+    print "Changing ".(scalar(@files))." file".((scalar(@files)==1)?"":"s").".\n" if ($verbose >= 1);
+    foreach my $file1 (@files)
+    {
+	print "File: ".$file1."\n" if ($verbose >= 1);
+	my $skip = 0;
+	if (!-e $file1)
+	{
+	    print "Cannot find file '".$file1."'.\n";
+	    $skip = 1;
+	}
+	if (-d $file1)
+	{
+	    if ($recursive)
+	    {
+		# Chdir into the directory,
+		# get the file list,
+		# recursively call changeAll,
+		# and chdir back.
+		opendir (SUBDIR, $file1) or print "Could not read directory '".$file1."'.\n";
+		my @filelist = grep !/^\./, readdir (SUBDIR);
+		closedir (SUBDIR);
+		print "====Entering directory: ".$file1."====\n";
+		chdir ($file1) or print "Could not chdir into directory '".$file1."'.\n" and next;
+		print "Found ".(scalar(@filelist))." file".((scalar(@filelist)==1)?"":"s").".\n" if ($verbose >= 2);
+		changeAll(@filelist);
+		print "====Leaving directory : ".$file1."====\n";
+		chdir ("..");
+		next;
+	    }
+	    else
+	    {
+		print "File '".$file1."' is a directory.\n";
+		next;
+	    }
+	}
+
+	my $file2 = changeName($file1);
+	if ($file1 eq $file2 or $file2 !~ /\w/)
+	{
+	    $skip = 1;
+	    print "No changes to ".$file1."\n";
+	}
+	if ($prompt and !$skip)
+	{
+	    my $editing = 1;
+	    while ($editing)
+	    {
+		$editing = 0;
+		print "Original: ".$file1."\n";
+		print "New     : ".$file2."\n";
+		print "Accept? yes/no/edit [yes]: ";
+		chomp($input = <STDIN>);
+		$skip = 1 if ($input =~ /^n/i);
+		if ($input =~ /^e/i)
+		{
+		    $editing = 1;
+		    print "Make changes and press ENTER when done.\n";
+		    $file2 = editName($file2);
+		}
+	    }
+	}
+	renameFile($file1, $file2) unless ($skip);
+    }
+}
+
+# Allows for name editing.
+# Takes the default string (if any)
+# and returns the modified string.
+sub editName
+{
+    my $text = shift;
+    my $term = new Term::ReadLine 'editname';
+    return $term->readline('New     : ', $text);
+}
+
+# Actually renames a file.
+sub renameFile
+{
+    my $source = shift;
+    my $dest = shift;
+    my $skip = 0;
+    print "\tMoving ".$source." to ".$dest."\n" if ($verbose >= 1);
+    if (-e $dest)
+    {
+	print "Warning: file ".$dest." exists.\n";
+	if ($prompt)
+	{
+	    $skip = 1;
+	    print "\tReplace? yes/no [no]: ";
+	    chomp($input = <STDIN>);
+	    $skip = 0 if ($input =~ /^y/i);
+	}
+	else
+	{
+	    print "\tSkipping.\n";
+	    $skip = 1;
+	}
+    }
+
+    if ($skip)
+    {
+	print "Not renaming.\n" if ($verbose >= 1);
+    }
+    else
+    {
+	rename ($source, $dest) or die "Error moving ".$source." to ".$dest.": ".$!;
+    }
+}
+
+# Checks a file for an id3 tag and
+# returns true or false.
+sub checkId3
+{
+    my $filename = shift;
+    my $tag = get_mp3tag($filename, 1);
+    if ($tag->{'ARTIST'} or $tag->{'TITLE'} or $tag->{'ALBUM'} or $tag->{'TRACKNUM'})
+    {
+	print "Current id3 tag:\n";
+	print "\tTrack:  ".$tag->{'TRACKNUM'}."\n" if ($tag->{'TRACKNUM'});
+	print "\tArtist: ".$tag->{'ARTIST'}."\n";
+	print "\tAlbum:  ".$tag->{'ALBUM'}."\n" if ($tag->{'ALBUM'});
+	print "\tTitle:  ".$tag->{'TITLE'}."\n";
+	return 1;
+    }
+    return 0;
+}
+
+# Takes a filename and the typical
+# mp3rename song hash table and
+# saves the data into the id3 tag of the file.
+sub setId3
+{
+    my $filename = shift;
+    my %song = @_;
+    my $tag = get_mp3tag($filename, 1);
+    print "Setting id3 tag.\n" if ($verbose >= 2);
+    set_mp3tag($filename, $song{'title'}, $song{'artist'}, $song{'album'}, $tag->{'YEAR'}, $tag->{'COMMENT'}, $tag->{'GENRE'}, $song{'track'});
+}
+
+# Allows the user to edit the
+# parts of an id3 tag. Returns
+# the typical song hash of all
+# the elements.
+sub editId3
+{
+    my %song = @_;
+    my $done = 0;
+    my $term = new Term::ReadLine 'editid3';
+    while ($done == 0)
+    {
+	print "New id3 tag:\n";
+	print "\tTrack:  ".$song{'track'}."\n" if ($song{'track'});
+	print "\tArtist: ".$song{'artist'}."\n";
+	print "\tAlbum:  ".$song{'album'}."\n" if ($song{'album'});
+	print "\tTitle:  ".$song{'title'}."\n";
+	print "Accept? yes/no/edit [yes]: ";
+	chomp($input = <STDIN>);
+	if ($input =~ /^n/i)
+	{
+	    $song{'skip'} = 1;
+	    return %song;
+	}
+	elsif ($input =~ /^e/i)
+	{
+	    $song{'track'} = $term->readline("Track\t: ", $song{'track'});
+	    $song{'artist'} = $term->readline("Artist\t: ", $song{'artist'});
+	    $song{'album'} = $term->readline("Album\t: ", $song{'album'});
+	    $song{'title'} = $term->readline("Title\t: ", $song{'title'});
+	}
+	else
+	{
+	    $done = 1;
+	}
+    }
+    return %song;
+}
+
+# Used instead of parseName to
+# get the data out of an id3 tag
+# and populate the %song hash.
+sub getId3
+{
+    my $filename = shift;
+    my %song;
+    my $tag = get_mp3tag($filename, 1);
+    $song{'track'} = $tag->{'TRACKNUM'};
+    $song{'artist'} = $tag->{'ARTIST'};
+    $song{'title'} = $tag->{'TITLE'};
+    $song{'album'} = $tag->{'ALBUM'};
+    return %song;
+}
+
+# The main function.
+sub begin
+{
+    my @filenames = @_;
+    print "\n";
+    changeAll(@filenames);
+}
+

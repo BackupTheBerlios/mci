@@ -1,0 +1,15 @@
+#!/bin/sh
+
+mkdir -p /etc/pf.conf.d/internet/rdr-tcp-ipv4/7358
+mkdir -p /etc/pf.conf.d/internet/rdr-tcp-ipv4/9080
+
+SUBNET=$(cat /var/cfengine/inputs/config/sites/$(hostname | cut -d"." -f2-)/network/intranet/ipv4/subnet)
+
+echo "any" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/7358/to
+echo "any" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/9080/to
+echo "any" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/7358/from
+echo "any" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/9080/from
+
+echo "$(dnsip www.intra.net)" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/7358/redirect
+echo "$(dnsip www.intra.net)" > /etc/pf.conf.d/internet/rdr-tcp-ipv4/9080/redirect
+

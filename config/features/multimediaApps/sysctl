@@ -1,0 +1,2 @@
+kern.shminfo.shmall=32768
+machdep.userldt=1

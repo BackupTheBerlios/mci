@@ -1,0 +1,26 @@
+#!/bin/sh
+
+prefix="/var/cfengine/inputs/config"
+dest="${prefix}/../available.package.list"
+
+FTP="$1"
+
+rm -f $dest ${dest}.tmp
+touch $dest ${dest}.tmp
+
+list=$(ftp -Vai ${FTP} << __EOT
+ls
+quit
+__EOT)
+
+for i in $(echo $list | sort)
+do
+	if [ "$(echo $i | grep .tgz$)" ]
+	then
+		echo $i >> ${dest}.tmp
+	fi
+done
+
+
+cat ${dest}.tmp | sort | uniq > ${dest} &&
+rm -rf ${dest}.tmp

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /etc && 
+find *.d -type f | grep -v fstab.d/standard | grep -v master.passwd.d/0/PASSWORD | xargs rm -f

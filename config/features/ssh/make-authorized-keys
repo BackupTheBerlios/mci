@@ -1,0 +1,24 @@
+#!/bin/sh
+
+cd /etc/master.passwd.d
+
+for i in $(find * -type d -maxdepth 1 -mindepth 1 -name authorized_keys)
+do
+	if [ -f "$i/../HOME" ] && [ -f "$i/../NAME" ] && [ -f "$i/../GID" ]
+	then
+		HOME=$(cat $i/../HOME)
+		NAME=$(cat $i/../NAME)
+		GID=$(cat $i/../GID)
+		cd $i
+		mkdir -p $HOME/.ssh
+		rm -f $HOME/.ssh/new.authorized_keys
+		touch $HOME/.ssh/new.authorized_keys
+		chmod 600 $HOME/.ssh/new.authorized_keys
+		for j in $(find * -type f)
+		do
+			cat $j >> $HOME/.ssh/new.authorized_keys
+		done
+		chown $NAME:$GID $HOME/.ssh/new.authorized_keys
+		mv $HOME/.ssh/new.authorized_keys $HOME/.ssh/authorized_keys
+	fi
+done

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+site=$(hostname | cut -d"." -f2-) &&
+cd /var/heimdal && 
+scp -i id_dsa kadmin.${site}:/var/heimdal/heimdal.db heimdal.db.new 2>&1 \
+	| grep -v "^ssh: connect to host kadmin.${site} port 22: Connection timed out" && 
+if [ -f "heimdal.db" ]
+then
+	cp heimdal.db heimdal.db.old 
+fi
+cp heimdal.db.new heimdal.db

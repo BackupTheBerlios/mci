@@ -1,0 +1,10 @@
+3,24,44 * * * * fetchmail -as -t 20 -f /$(hostname | cut -d"." -f2-)/me/secrets/fetchmail/fetchmailrc 2>&1 > /dev/null
+0 0 * * *	svc -t /service/dovecot/log
+0 0 * * *	svc -t /service/qmail-smtpd/log
+30 * * * *	/bin/ksh /var/cfengine/inputs/config/features/mailServer/mail_dovecot_logs.sh
+31 * * * *	/bin/ksh /var/cfengine/inputs/config/features/mailServer/mail_qmail-smtpd_logs.sh
+0 0 * * *	/usr/local/bin/dspam_clean
+6 6 4 * *	psql -f /$(hostname | cut -d"." -f2-)/me/data/dspam/purge.sql dspam dspam
+14 1 * * *	/bin/ksh -l /var/cfengine/inputs/config/features/mailServer/reclass.sh
+24 4 4 * *	 psql -c 'VACUUM;' dspam dspam
+

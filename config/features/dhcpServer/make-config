@@ -1,0 +1,46 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+INTERFACE_LABELS="/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network"
+
+intranet_interfaces=""
+
+if [ -d "${INTERFACE_LABELS}/intranet" ] && [ $(find ${INTERFACE_LABELS}/intranet -type d -maxdepth 1 -mindepth 1 | grep -v .svn | grep -v CVS |  wc -l) -gt 0 ]
+then
+	cd ${INTERFACE_LABELS}/intranet
+	for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v .svn | grep -v CVS)
+	do
+		intranet_interfaces="${intranet_interfaces} ${i}"
+	done
+fi
+cd ${INTERFACE_LABELS}
+
+if [ -n "${intranet_interfaces}" ]
+then
+	echo "${intranet_interfaces}" > /etc/dhcpd.interfaces
+	echo 'dhcpd_flags=""' > /etc/rc.conf.local.d/dhcpd
+fi
+
+rm -rf /etc/dhcpd.conf
+touch /etc/dhcpd.conf
+
+echo "max-lease-time 86400;" >> /etc/dhcpd.conf
+echo "default-lease-time 86400;" >> /etc/dhcpd.conf
+echo "use-host-decl-names on;" >> /etc/dhcpd.conf
+echo "" >> /etc/dhcpd.conf
+
+echo "allow unknown-clients;" >> /etc/dhcpd.conf
+echo "deny bootp;" >> /etc/dhcpd.conf
+echo "allow booting;" >> /etc/dhcpd.conf
+echo "" >> /etc/dhcpd.conf
+
+echo "option domain-name \"${SITE}\";" >> /etc/dhcpd.conf
+echo "option routers $(dnsip router.${SITE});" >> /etc/dhcpd.conf
+echo "option domain-name-servers $(dnsip ns.${SITE});" >> /etc/dhcpd.conf
+echo "" >> /etc/dhcpd.conf
+
+echo "subnet $(cat /var/cfengine/inputs/config/sites/${SITE}/network/intranet/ipv4/subnet) netmask $(cat /var/cfengine/inputs/config/sites/${SITE}/network/intranet/ipv4/netmask) {" >> /etc/dhcpd.conf
+echo "	range $(cat /var/cfengine/inputs/config/sites/${SITE}/network/intranet/ipv4/prefix)20 $(cat /var/cfengine/inputs/config/sites/${SITE}/network/intranet/ipv4/prefix)254;" >> /etc/dhcpd.conf
+echo "}" >> /etc/dhcpd.conf

@@ -1,0 +1,37 @@
+#!/bin/sh
+
+rm -f /etc/printcap.tmp
+touch /etc/printcap.tmp
+
+site=$(hostname | cut -d"." -f2-)
+printers=$(/bin/ksh /var/cfengine/inputs/config/features/printing/get-printers)
+
+for i in $printers
+do
+	cd /var/cfengine/inputs/config/hosts/$site
+	HOST=$(find * -type d -name $i | grep -v CVS | cut -d"/" -f1 | head -1)
+	echo "$i|$(cat $HOST/printing/printer/$i/DESCR):\\" >> /etc/printcap.tmp
+	if [ -d "/var/cfengine/inputs/config/hosts/$site/$(hostname -s)/printing/printer/$i" ]
+	then
+		echo "TODO: IMPLEMENT LOCAL PRINTING CASE -- with filter"
+		echo "TODO: create _win entry without filter"
+		echo "TODO: allow access from intranet and vpn (tcp/515)"
+	else
+		echo "lp=:\\" >> /etc/printcap.tmp
+		echo "rp=$i:\\" >> /etc/printcap.tmp
+		echo "rm=${HOST}.${site}:\\" >> /etc/printcap.tmp
+		if [ -f "$HOST/printing/printer/$i/IS_MS" ]
+		then
+			echo "af=/var/cfengine/inputs/config/features/printing/$(cat $HOST/printing/printer/$i/PPD):\\" >> /etc/printcap.tmp
+			echo "if=/usr/local/bin/footmatic-rip:\\" >> /etc/printcap.tmp
+		fi
+	fi
+	echo "sd=/var/spool/output/$i:\\" >> /etc/printcap.tmp
+	echo "lf=/var/log/$i:\\" >> /etc/printcap.tmp
+	touch /var/log/$i && chown root:daemon /var/log/$i
+	echo "mx#0:\\" >> /etc/printcap.tmp
+	echo "rs:sh:" >> /etc/printcap.tmp
+done
+
+mv /etc/printcap.tmp /etc/printcap
+chmod 644 /etc/printcap

@@ -1,0 +1,45 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+
+cd /etc/djbdns/tinydns/root
+
+if [ -f "data.new" ]
+then
+	if [ ! -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/intranet" ]
+	then
+		cd /var/cfengine/inputs/config/hosts/${SITE}
+		for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS | grep -v svn | grep -v ${HOST})
+		do
+			cd /var/cfengine/inputs/config/hosts/${SITE}/${i}
+			VPN_IP=""
+			if [ -d "network/intranet" ]
+			then
+				INTRANET_IP=$(cat network/intranet/*/ipv4/address | head -1)
+			else
+				INTRANET_IP=""
+			fi
+			if [ -f "features.list" ] && [ "$(grep vpnClient features.list | wc -l)" -eq "1" ]
+			then
+				VPN_IP=$(cat network/vpn/tun0/ipv4/address)
+			fi
+			if [ -f "features.list" ] && [ "$(grep vpnServer features.list | wc -l)" -eq "1" ]
+			then
+				VPN_IP=$(cat /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/vpn/tun0/ipv4/dest)
+			fi
+			if [ -n "$VPN_IP" ] && [ -n "$INTRANET_IP" ]
+			then
+				cd /etc/djbdns/tinydns/root
+				cat data.new | sed -e "s|${INTRANET_IP}$|${VPN_IP}|g" > data.tmp
+				mv data.tmp data.new
+			fi
+		done	
+	fi
+	mv data.new data	
+fi
+
+if [ -f "data" ]
+then
+	tinydns-data
+fi

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ ! -d "/usr/ports" ]
+then
+	cd /usr
+	cvs -d anoncvs@anoncvs.no.openbsd.org:/cvs checkout -P ports
+else
+	cd /usr/ports
+	cvs -q update -dP
+fi
+

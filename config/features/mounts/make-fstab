@@ -1,0 +1,18 @@
+#!/bin/sh
+
+FILE="fstab"
+
+mkdir -p /etc/${FILE}.d
+cd /etc/${FILE}.d
+
+rm -f /etc/${FILE}.new
+touch /etc/${FILE}.new
+chmod 644 /etc/${FILE}.new
+
+for i in $(find * -type f)
+do
+	cat $i >> /etc/${FILE}.new
+done
+
+mv /etc/${FILE}.new /etc/${FILE}
+

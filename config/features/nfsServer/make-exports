@@ -1,0 +1,10 @@
+#!/bin/sh
+
+site=$(hostname | cut -d"." -f2-)
+host=$(hostname -s)
+
+rm -f /etc/exports
+touch /etc/exports
+
+echo "/${site}/${host}/shared /${site}/${host}/home/users -maproot=0:0 -network=$(cat /var/cfengine/inputs/config/sites/${site}/network/intranet/ipv4/subnet) -mask=$(cat /var/cfengine/inputs/config/sites/${site}/network/intranet/ipv4/netmask)" >> /etc/exports
+echo "/${site}/${host}/shared /${site}/${host}/home/users -maproot=0:0 -network=$(cat /var/cfengine/inputs/config/sites/${site}/network/vpn/ipv4/subnet) -mask=$(cat /var/cfengine/inputs/config/sites/${site}/network/vpn/ipv4/netmask)" >> /etc/exports

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SITE=${1}
+HOST=${2}
+
+HOMEDIRS=/${SITE}/${HOST}/home/users
+
+if [ -d "${HOMEDIRS}" ] && [ $(find ${HOMEDIRS} -type d -maxdepth 1 -mindepth 1 | wc -l) -gt 0 ] 
+then
+	cd /${SITE}/${HOST}/home/users
+	for i in *
+	do
+		if [ -d "${i}" ] && [ ! -e "/home/users/${i}" ]
+		then
+			(cd /home/users && ln -s ${HOMEDIRS}/${i} ${i})
+		fi
+	done
+fi

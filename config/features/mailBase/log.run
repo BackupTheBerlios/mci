@@ -1,0 +1,3 @@
+#!/bin/sh
+exec setuidgid qmaill multilog t s400000 n100 `date +./main/log.%Y-%m-%d`
+

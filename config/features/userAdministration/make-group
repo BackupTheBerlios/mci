@@ -1,0 +1,38 @@
+#!/bin/sh
+
+rm -f /etc/group.new && touch /etc/group.new && chmod 644 /etc/group.new && chown 0:0 /etc/group.new &&
+
+if [ -d "/etc/group.d" ]
+then
+	cd /etc/group.d
+	for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS)
+	do
+		cd $i
+		if [ -f "NAME" ]
+		then
+			NAME=$(cat NAME)
+		else
+			echo "No NAME specified for groupid $i"
+			exit 1
+		fi
+		MEMBERS=""
+		if [ -d "members" ]
+		then
+			for j in $(find members -type f | grep -v CVS | cut -d"/" -f2)
+			do
+				if [ -z "$MEMBERS" ]
+				then
+					MEMBERS="$j"
+				else
+					MEMBERS="$MEMBERS,$j"
+				fi
+			done
+		fi
+		cd ..
+		echo "$NAME:*:$i:$MEMBERS" >> /etc/group.new
+	done
+	mv /etc/group.new /etc/group
+else
+	echo "/etc/group.d directory does not exists !"
+	exit 1
+fi

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+host=$(hostname -s)
+site=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+KEY_DIR="/${site}/${host}/secrets/ssl/ca"
+
+if test $# -ne 1; then
+        echo "usage: sign-req <name>";
+        exit 1
+fi                                                                             
+
+if test $KEY_DIR; then
+	cd $KEY_DIR && \
+	openssl ca -days 3650 -out $1.crt -in $1.csr
+else
+	echo you must define KEY_DIR
+fi

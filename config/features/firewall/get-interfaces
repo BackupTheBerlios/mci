@@ -1,0 +1,16 @@
+#!/bin/sh
+
+SITE=${1}
+HOST=${2}
+TYPE=${3}
+
+INTERFACE_LABELS="/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network"
+
+if [ -d "${INTERFACE_LABELS}/${TYPE}" ] && [ $(find ${INTERFACE_LABELS}/${TYPE} -type d -maxdepth 1 -mindepth 1 | grep -v .svn | grep -v CVS | wc -l) -gt 0 ]
+then
+	cd ${INTERFACE_LABELS}/${TYPE}
+	for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS | grep -v .svn)
+	do
+   		echo -n "${i} "
+	done
+fi

@@ -1,0 +1,51 @@
+#!/bin/sh
+
+rm -rf /etc/master.passwd.new && touch /etc/master.passwd.new && chmod 600 /etc/master.passwd.new && chown root:wheel /etc/master.passwd.new &&
+
+function check_empty {
+	
+	if [ -f "$1" ]
+	then
+		RESULT=$(cat $1)
+	else
+		RESULT=$2
+	fi
+}
+
+function check_needed {
+	if [ -f "$1" ]
+	then
+		RESULT=$(cat $1)
+	else
+		echo "No $1 specified for userid $1"
+		exit 1
+	fi
+}
+
+if [ -d "/etc/master.passwd.d" ]
+then
+	cd /etc/master.passwd.d
+	for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS)
+	do
+		RESULT=""
+		cd $i
+		check_needed NAME ""; NAME=$RESULT
+		check_empty PASSWORD '*'; PASSWORD=$RESULT
+		check_needed GID ""; GID=$RESULT
+		check_empty CLASS ""; CLASS=$RESULT		
+		check_empty PASSWORD_CHANGE "";PASSWORD_CHANGE=$RESULT
+		check_empty EXPIRATION "";EXPIRATION=$RESULT
+		check_empty GECOS "";GECOS=$RESULT
+		check_empty HOME "";HOME=$RESULT
+		check_empty SHELL "/bin/sh";SHELL=$RESULT
+		cd ..
+		echo "$NAME:$PASSWORD:$i:$GID:$CLASS:$PASSWORD_CHANGE:$EXPIRATION:$GECOS:$HOME:$SHELL" >> /etc/master.passwd.new
+	done
+	mv /etc/master.passwd.new /etc/master.passwd
+	pwd_mkdb -p /etc/master.passwd
+	pwd_mkdb /etc/master.passwd
+else
+	echo "/etc/master.passwd.d directory does not exists !"
+	exit 1
+fi
+

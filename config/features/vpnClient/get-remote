@@ -1,0 +1,24 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network
+
+if [ -d "intranet" ] && [ $(find intranet -type d -maxdepth 1 -mindepth 1 | grep -v CVS | grep -v .svn | wc -l) -gt 0 ]
+then
+	IP=$(dnsip vpn.intra.net)
+   if [ -n "$IP" ]
+   then
+   		echo $IP
+   fi
+elif [ -d "internet" ] && [ $(find internet -type d -maxdepth 1 -mindepth 1 | grep -v CVS | grep -v .svn |wc -l) -gt 0 ]
+then
+   IP_URL=$(cat /var/cfengine/inputs/config/sites/${SITE}/internetGateway/url)
+   IP=$(ftp -4V -o - $IP_URL)
+   #IP=$(dnsip vpn.intra.net)
+   if [ -n "$IP" ] && [ $(echo $IP | egrep -cx -e '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+') -eq 1 ]
+   then
+   	echo $IP
+   fi
+fi

@@ -1,0 +1,1 @@
+29 4 * * * /bin/ksh /var/cfengine/inputs/config/features/sourcePackageAdministration/update-ports

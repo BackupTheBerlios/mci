@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+
+cd /var/cfengine/inputs/config/hosts/${SITE}
+
+mkdir -p /etc/master.passwd.d/0/authorized_keys
+mkdir -p /var/backups/server
+
+for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS)
+do
+	if [ -f "${i}/backup_key.pub" ]
+	then
+		echo -n "command=\"/bin/ksh /var/backups/server/${i}-shell\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty " > /etc/master.passwd.d/0/authorized_keys/backup_${i}
+		cat ${i}/backup_key.pub >> /etc/master.passwd.d/0/authorized_keys/backup_${i}
+		echo "rsync --server --delete -qlogtprz --timeout=4800 --numeric-ids . /backup/${SITE}/${i}/" > /var/backups/server/${i}-shell
+	fi
+done 

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(hostname | cut -d"." -f2-)
+
+RSYNC_OPTIONS="--progress -owner --group  --perms --compress --timeout=240 --checksum --recursive --update --links --times --numeric-ids"
+RSYNC_RSH="ssh"
+LOCAL="/${SITE}/${HOST}/"
+REMOTE="/backup/${SITE}/${HOST}/"
+
+if [ ! -f "/var/backups/restored" ]
+then
+	echo "Starting restore ..."
+	rsync ${RSYNC_OPTIONS} ${REMOTE} ${LOCAL} 
+  	echo "Restore finished"
+   	touch /var/backups/restored
+fi 

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd /var/cfengine/inputs/config/hosts/${1}/${2}/network/intranet
+
+cat $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS | tail -1)/ipv4/address > /etc/djbdns/dnscache-external/env/IP
+

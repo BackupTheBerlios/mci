@@ -1,0 +1,2 @@
+0	0	*	*	*	svc -t /service/sshd/log
+0 	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/transproxy/mail_transproxy_logs.sh

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+dest="$1"
+
+echo -n > $dest
+
+if [ -d "/etc/master.passwd.d" ]
+then
+	cd /etc/master.passwd.d
+	for i in $(find * -type d -maxdepth 0 -mindepth 0)
+	do
+		if [ -f "$i/SCHEDULER" ]
+		then
+			cat $i/NAME >> $dest
+		fi
+	done
+fi

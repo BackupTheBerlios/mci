@@ -1,0 +1,5 @@
+#!/bin/sh
+sleep 5
+exec 2>&1
+export PATH="$PATH:/var/qmail/bin"
+exec softlimit -m 7000000 envuidgid qmaild tcpserver -QdHR -l 0 -x tcp.cdb -t 122 -c 40 0 25 qmail-smtpd

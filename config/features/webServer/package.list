@@ -1,0 +1,6 @@
+libiconv:converters/libiconv
+gettext:devel/gettext
+recode:converters/recode
+php4-core:www/php4/core
+c-client:mail/c-client
+php4-imap:www/php4/extensions

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+FILE="hosts"
+
+mkdir -p /etc/${FILE}.d
+cd /etc/${FILE}.d
+
+echo "$(dnsip ${2}.${1}) ${2}.${1} ${2}" > /etc/${FILE}.d/${2}
+
+rm -f /etc/${FILE}.new
+touch /etc/${FILE}.new
+chmod 644 /etc/${FILE}.new
+
+if [ "$(find . | wc -l)" -gt "1" ]
+then
+
+	for i in $(find * -type f)
+	do
+		cat $i >> /etc/${FILE}.new
+	done
+fi
+
+mv /etc/${FILE}.new /etc/${FILE}
+

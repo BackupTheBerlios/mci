@@ -1,0 +1,84 @@
+#!/bin/sh
+
+PORTSDIR="/usr/ports"
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+
+prefix="/var/cfengine/inputs/config/features"
+cd ${prefix}
+
+dest="${PORTSDIR}/package.list"
+
+rm -f $dest ${dest}.tmp
+touch $dest ${dest}.tmp
+
+for i in $(cat /var/cfengine/inputs/config/sites/${SITE}/features.list) $(cat /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/features.list) 
+do
+	if [ -f "$i/package.list" ]
+	then
+		cat $i/package.list  >> ${dest}.tmp &&
+		echo "" >> ${dest}.tmp
+	fi
+done
+
+cat ${dest}.tmp > ${dest} &&
+rm -rf ${dest}.tmp
+IFS="
+"
+
+mkdir -p ~/portslogs
+
+for i in $(cat ${dest})
+do
+	echo $i
+	cd ${PORTSDIR}
+	ldconfig -Rm /usr/X11R6/lib /usr/local/lib /usr/lib
+	if [ ! $(echo $i | grep '/') ] || [ ! -d $port ]
+	then
+		echo "problem in ports specification!" 
+		exit 1
+	fi
+	package=$(echo $i | cut -d":" -f1)
+	port=$(echo $i | cut -d":" -f2 | cut -d"|" -f1)
+	flavor=$(echo $i | cut -d":" -f2 | cut -d"|" -f2)
+	if [ "$port" == "$flavor" ]
+	then
+		flavor=""
+	fi
+	if [ -n "${flavor}" ]
+	then
+		if [ $(echo "$flavor" | grep " " ) ]
+		then
+			F="FLAVOR=\"$flavor\""
+		else
+			F="FLAVOR=$flavor"
+		fi
+	else
+		F=""
+	fi
+	if [ -n "$flavor" ] && [ -z "(cd $port; make show=\"FLAVORS\")" ]
+	then
+		echo "problem in flavor specification!" 
+		exit 1
+	fi
+	if [ "$(find /var/db/pkg -maxdepth 1 -mindepth 1 | grep ^/var/db/pkg/${package}-[0-9]*)" ]
+	then
+		target="update"
+	else
+		target="install"
+	fi
+	echo -n "cd ${PORTSDIR}/$port " > /tmp/exec &&
+	echo -n '&& ' >> /tmp/exec &&
+	echo -n "${F} make ${target} " >> /tmp/exec &&
+	echo  ' 2>&1 | /usr/ports/infrastructure/build/portslogger ~/portslogs' >> /tmp/exec
+	ksh /tmp/exec
+	if [ "$?" != "0" ]
+	then
+		echo "Problem building port $i"
+		exit 1
+	fi
+	
+done
+
+rm -f ${dest}

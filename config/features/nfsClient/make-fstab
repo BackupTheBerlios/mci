@@ -1,0 +1,8 @@
+#!/bin/sh
+
+rm -rf /etc/fstab.d/nfs &&
+touch /etc/fstab.d/nfs &&
+dir=/$(hostname | cut -d"." -f2-)/$(dnsname $(dnsip shared-files.$(hostname | cut -d"." -f2-)) | cut -d"." -f1)/shared
+mkdir -p $dir
+echo "shared-files.$(hostname | cut -d"." -f2-):$dir $dir nfs rw,nodev,noexec,nosuid 0 0" >> /etc/fstab.d/nfs 
+

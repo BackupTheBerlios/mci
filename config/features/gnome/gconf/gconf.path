@@ -1,0 +1,5 @@
+xml:readonly:/var/db/gconf/gconf.xml.mandatory
+include "$(HOME)/.gconf.path"
+xml:readwrite:$(HOME)/.gconf
+xml:readonly:/var/db/gconf/gconf.xml.local
+xml:readonly:/var/db/gconf/gconf.xml.defaults

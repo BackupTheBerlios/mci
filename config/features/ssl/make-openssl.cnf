@@ -1,0 +1,12 @@
+#!/bin/sh
+
+dest=/etc/ssl/openssl.cnf
+
+echo "RANDFILE                = /dev/arandom" > ${dest}
+echo "[ca]" >> ${dest}
+echo "default_ca = CA" >> ${dest}
+echo "[CA]" >> ${dest}
+echo "dir = /${1}/${2}/secrets/ssl/ca" >> ${dest}
+
+cat /var/cfengine/inputs/config/features/ssl/openssl.cnf >> ${dest}
+ 

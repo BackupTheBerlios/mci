@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ ! -d "/usr/src" ]
+then
+	cd /usr
+	cvs -d anoncvs@anoncvs.no.openbsd.org:/cvs checkout -P src 
+else
+	cd /usr/src
+	cvs -q update -dP
+fi
+
+if [ ! -d "/usr/XF4" ]
+then
+	cd /usr
+	cvs -d anoncvs@anoncvs.no.openbsd.org:/cvs checkout -P XF4
+else
+	cd /usr/XF4
+	cvs -q update -dP
+fi

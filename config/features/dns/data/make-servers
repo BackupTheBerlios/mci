@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SITE=$1
+
+cd /etc/djbdns/dnscache/root/servers
+
+for i in $(cat /var/cfengine/inputs/config/sites/${SITE}/dns/data | grep '^\.' | cut -d":" -f1 | sed -e 's|.||')
+do
+	echo "127.0.0.1" > $i
+done
+
+chmod 644 *

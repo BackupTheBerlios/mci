@@ -1,0 +1,7 @@
+#!/bin/sh
+
+host=$1
+site=$2
+
+cat /var/cfengine/inputs/config/sites/$site/mailBase/root-alias > /var/qmail/alias/.qmail-root
+chmod 644 /var/qmail/alias/.qmail-root 

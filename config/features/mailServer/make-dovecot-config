@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+
+cat /var/cfengine/inputs/config/features/mailServer/dovecot.conf | \
+	sed -e "s|SITE|${SITE}|" | \
+	sed -e "s|HOST|${HOST}|" > \
+	/etc/dovecot.conf
+
+	

@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+
+rm -f $HOME/.xsession-errors
+exec > "$HOME/.xsession-errors" 2>&1
+
+test -f /etc/profile && . /etc/profile
+test -f "$HOME/.profile" && . "$HOME/.profile"
+
+LIST="Muziek Geluidjes Afbeeldingen Foto's Videos Documenten Downloads"
+
+for i in ${LIST}
+do
+	( mkdir -p ${HOME}/Desktop/${i} && \
+   	cd ${HOME}/Desktop/${i} && \
+   	ln -fhs ../../Mijn\ ${i} && \
+   	ln -fhs /shared/${i} Gedeelde\ ${i} && \
+   	mkdir -p ${HOME}/Mijn\ ${i})
+done
+
+cd
+
+mkdir -p ${HOME}/.qt &&
+cp /var/cfengine/inputs/config/features/guiLogin/qtrc ${HOME}/.qt/
+cp /var/cfengine/inputs/config/features/guiLogin/qt_plugins_3.2rc ${HOME}/.qt/
+
+mkdir -p ${HOME}/Mijn\ Afbeeldingen/Screenshots
+mkdir -p ${HOME}/Mijn\ Afbeeldingen/Achtergronden
+
+exec /usr/local/bin/gnome-session

@@ -1,0 +1,13 @@
+Section "Module"
+	Load	"GLcore"
+	Load	"bitmap"
+	Load	"dbe"
+	Load	"ddc"
+	Load	"extmod"
+	Load	"freetype"
+	Load	"glx"
+	Load	"int10"
+	Load	"record"
+	Load	"vbe"
+EndSection
+

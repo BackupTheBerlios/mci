@@ -1,0 +1,2 @@
+0 	0	*	*	*	svc -t /service/qmail-send/log
+15	*	*	*	*	/bin/ksh /var/cfengine/inputs/config/features/mailBase/mail_logs.sh

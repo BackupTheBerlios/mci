@@ -1,0 +1,9 @@
+#!/bin/sh
+
+host=$(hostname -s)
+site=$(cat /etc/myname | sed -e "s|$(hostname -s).||")
+
+echo "#!/bin/sh" > /etc/svnserve/run
+echo "umask 007" >> /etc/svnserve/run
+echo "exec /usr/local/bin/setuidgid svnserve /usr/local/bin/svnserve -d --foreground -r /$site/$host/repositories/svn" >> /etc/svnserve/run
+chmod 755 /etc/svnserve/run

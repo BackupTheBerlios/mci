@@ -1,0 +1,10 @@
+#!/bin/sh
+exec 2>&1
+remote=$(/bin/sh /etc/openvpn/root/get-remote)
+
+if [ -n "$remote" ]
+then
+	exec /usr/local/sbin/openvpn --config /etc/openvpn/root/openvpn.conf  --remote $(/bin/sh /etc/openvpn/root/get-remote)
+else
+	sleep 5
+fi

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+touch /etc/sudoers.new
+chmod u+w /etc/sudoers.new
+echo "" > /etc/sudoers.new
+
+cd /etc/sudoers.d
+
+for i in $(find * -type f)
+do
+	cat $i >> ../sudoers.new
+done
+
+chmod u+w /etc/sudoers && mv /etc/sudoers.new /etc/sudoers && chmod 440 /etc/sudoers &&
+chown root:wheel /etc/sudoers

@@ -1,0 +1,18 @@
+if [ `/usr/bin/whoami` = 'root' ]
+then
+        umask 022
+else
+        umask 077
+fi
+
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/var/qmail/bin"
+export GDK_USE_XFT=1
+export BROWSER="/usr/local/bin/mozilla"
+export TERMCMD="gnome-terminal"
+export LC_ALL="C"
+alias ls='ls -AF'
+
+HOST=$(hostname -s)
+
+#export PS1='[$USER@$HOST:$PWD$] '
+export PS1='[$USER@$HOST$] '
