@@ -1,5 +1,5 @@
 access = ( root )
-actionsequence = ( directories tidy disable copy editfiles links files shellcommands )
+actionsequence = ( groups directories tidy disable copy editfiles links files shellcommands )
 DefaultCopyType = ( checksum )
 ExpireAfter = ( 15 )
 HostnameKeys = ( off )
