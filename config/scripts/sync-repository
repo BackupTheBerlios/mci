@@ -1,0 +1,26 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+
+cd /var/cfengine/inputs/config
+
+sleep $(jot -nr 1 1 200)
+
+
+for i in features scripts
+do
+	(cd ${i} && \	
+	CVSROOT=":pserver:anonymous@cvs.mci.berlios.de:/cvsroot/mci" \
+	nice -n 15 cvs -Q update -Pd 2>&1) 
+done
+
+for i in sites hosts
+do	
+	(cd ${i} && \
+	CVSROOT=":ext:anoncvs@gold.${SITE}:/home/repositories/cvs/infrastructure" \
+	CVS_RSH="ssh" \
+	nice -n 15 cvs -Q update -Pd 2>&1 \
+	| grep -v "^ssh: connect to host gold.${SITE} port 22: Connection timed out" \
+	| grep -v "end of file from server")
+done
