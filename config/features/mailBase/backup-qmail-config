@@ -15,6 +15,8 @@ then
 	exit 0
 fi
 
+mkdir -p /${SITE}/${HOST}/data/qmail
+
 rsync $RSYNC_OPTIONS /var/qmail/alias /${SITE}/${HOST}/data/qmail/alias
 rsync $RSYNC_OPTIONS /var/qmail/control /${SITE}/${HOST}/data/qmail/control
 rsync $RSYNC_OPTIONS /var/qmail/users /${SITE}/${HOST}/data/qmail/users
