@@ -3,4 +3,8 @@ gettext:devel/gettext
 fetchmail:mail/fetchmail
 gdbm:databases/gdbm
 maildrop:mail/maildrop
+ezmlm-idx:uopp/mail/ezmlm-idx
+autorespond:uopp/mail/autorespond
+vpopmail:uopp/mail/vpopmail
+qmailadmin:uopp/mail/qmailadmin
 dovecot:uopp/mail/dovecot
