@@ -7,7 +7,7 @@ cd /etc/djbdns/tinydns/root
 
 if [ -f "data.new" ]
 then
-	if [ ! -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/intranet" ]
+	if [ ! -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/intranet" ] && [ "$(grep vpn /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/features.list)" ]
 	then
 		cd /var/cfengine/inputs/config/hosts/${SITE}
 		for i in $(find * -type d -maxdepth 0 -mindepth 0 | grep -v CVS | grep -v svn | grep -v ${HOST})
