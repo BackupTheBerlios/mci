@@ -11,7 +11,7 @@ touch /root/.cvspass
 
 for i in features scripts
 do
-	(cd ${i} && nice -n 15 cvs -Q -d :pserver:anonymous@cvs.mci.berlios.de:/cvsroot/mci update -Pd)
+	(cd ${i} && nice -n 15 cvs -q -d :pserver:anonymous@cvs.mci.berlios.de:/cvsroot/mci update -Pd)
 done
 
 for i in sites hosts
@@ -19,7 +19,7 @@ do
 	(cd ${i} && \
 	CVSROOT=":ext:anoncvs@gold.${SITE}:/home/repositories/cvs/infrastructure" \
 	CVS_RSH="ssh" \
-	nice -n 15 cvs -Q update -Pd 2>&1 \
+	nice -n 15 cvs -q update -Pd 2>&1 \
 	| grep -v "^ssh: connect to host gold.${SITE} port 22: Connection timed out" \
 	| grep -v "end of file from server")
 done
