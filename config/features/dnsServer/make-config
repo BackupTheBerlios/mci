@@ -67,6 +67,6 @@ do
 	ln -snf /var/log/djbdns/tinydns-${IF} main
 
 	echo "0 0 * * * svc -t /service/tinydns-${IF}/log" >> /etc/crontab.d/tinydns
-	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dnsServer/logging/mail_logs_tinydns.sh ${IF}" >> /etc/crontab.d/tinydns
+	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dnsServer/scripts/mail_logs_tinydns.sh ${IF}" >> /etc/crontab.d/tinydns
 	
 done
