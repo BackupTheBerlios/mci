@@ -7,6 +7,8 @@ cd /var/cfengine/inputs/config
 
 sleep $(jot -nr 1 1 200)
 
+touch /root/.cvspass
+
 for i in features scripts
 do
 	(cd ${i} && nice -n 15 cvs -Q -d :pserver:anonymous@cvs.mci.berlios.de:/cvsroot/mci update -Pd)
