@@ -1,2 +1,2 @@
-39	4,8,12,16,20,23	*	*	*	(cd /var/cfengine/inputs/config; ksh run) 
-30	5,9,13,17,21,0	*	*	*	(cd /var/cfengine/inputs/config; ksh sync-repository)
+39	4,8,12,16,20,23	*	*	*	(cd /var/cfengine/inputs/config; ksh scripts/run) 
+30	5,9,13,17,21,0	*	*	*	(cd /var/cfengine/inputs/config; ksh scripts/sync-repository)
