@@ -7,19 +7,18 @@ BASE_CONFIG=/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns
 
 if [ ! -d "${BASE_CONFIG}" ] 
 then
-	echo "${BASE_CONFIG} dir does not exists"
-	exit 1
+	exit 0 
 fi
 
 cd ${BASE_CONFIG}
 
 if [ ! -d "${BASE_CONFIG}/server" ]
 then
-	echo "${BASE_CONFIG}/server dir does not exists"
-	exit 1
+	exit 0 
 fi
 
 rm /etc/crontab.d/tinydns
+touch /etc/crontab.d/tinydns
 
 cd ${BASE_CONFIG}/server
 

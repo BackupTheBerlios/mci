@@ -7,7 +7,7 @@ IF=${1}
 
 cd /etc/djbdns/tinydns-${1}/root
 
-cp /var/cfengine/inputs/config/site/${SITE}/dns/data data.new
+cp /var/cfengine/inputs/config/sites/${SITE}/dns/data data.new
 
 if [ ! -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/network/intranet" ] && [ "$(grep vpn /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/features.list)" ]
 then
