@@ -1,5 +1,4 @@
 Section "Files"
-	FontPath  "/usr/local/lib/X11/fonts/bitstream-vera"
 	FontPath  "/usr/X11R6/lib/X11/fonts/TTF"
 	FontPath  "/usr/X11R6/lib/X11/fonts/misc"
 	FontPath  "/usr/X11R6/lib/X11/fonts/100dpi:unscaled"

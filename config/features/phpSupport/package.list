@@ -4,3 +4,6 @@ recode:converters/recode
 php4-core:www/php4/core
 c-client:mail/c-client
 php4-imap:www/php4/extensions
+php4-gd:www/php4/extensions
+php4-curl:www/php4/extensions
+php4-pgsql:www/php4/extensions
