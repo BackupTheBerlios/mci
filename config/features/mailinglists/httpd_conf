@@ -1,0 +1,7 @@
+ScriptAlias /mailman/ "/usr/local/lib/mailman/cgi-bin/"
+Alias /pipermail/ "/var/spool/mailman/archives/public/"
+
+<Directory "/var/spool/mailman/archives/public/">
+ AddDefaultCharset Off
+</Directory>
+
