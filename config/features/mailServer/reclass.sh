@@ -15,7 +15,6 @@ do
 		cd ${user}/Maildir/.spam/cur
 		for i in $(ls -1)
 		do
-			echo $i
 			cat $i | /var/qmail/bin/qmail-inject ${user}-spam@${SITE}  &&
 			rm -f $i
 		done 
