@@ -9,7 +9,9 @@ if [ ! -f "/var/backups/qmail-restored" ]
 then
 	if [ -d "/${SITE}/${HOST}/data/qmail" ]
 	then
-		rsync ${RSYNC_OPTIONS} /${SITE}/${HOST}/data/qmail/ /var/qmail/ &&	
+		rsync ${RSYNC_OPTIONS} /${SITE}/${HOST}/data/qmail/alias/ /var/qmail/alias/ &&
+		rsync ${RSYNC_OPTIONS} /${SITE}/${HOST}/data/qmail/control/ /var/qmail/control/ &&
+		rsync ${RSYNC_OPTIONS} /${SITE}/${HOST}/data/qmail/users/ /var/qmail/users/ &&	
 		touch /var/backups/qmail-restored
 	fi
 	exit 0
@@ -17,9 +19,9 @@ fi
 
 mkdir -p /${SITE}/${HOST}/data/qmail
 
-rsync $RSYNC_OPTIONS /var/qmail/alias /${SITE}/${HOST}/data/qmail/alias
-rsync $RSYNC_OPTIONS /var/qmail/control /${SITE}/${HOST}/data/qmail/control
-rsync $RSYNC_OPTIONS /var/qmail/users /${SITE}/${HOST}/data/qmail/users
+rsync $RSYNC_OPTIONS /var/qmail/alias/ /${SITE}/${HOST}/data/qmail/alias/
+rsync $RSYNC_OPTIONS /var/qmail/control/ /${SITE}/${HOST}/data/qmail/control/
+rsync $RSYNC_OPTIONS /var/qmail/users/ /${SITE}/${HOST}/data/qmail/users/
 
 touch /var/backups/qmail-restored
 
