@@ -8,4 +8,10 @@ cat /var/cfengine/inputs/config/features/mailServer/dovecot.conf | \
 	sed -e "s|HOST|${HOST}|" > \
 	/etc/dovecot.conf
 
-	
+if [ -f "/var/vpopmail/domains/.dir-control" ]
+then
+	cat /etc/dovecot.conf | \
+		sed -e "s|^default_mail_env*||" | \
+		sed -e "s|passwd|vpopmail|g" \
+		> /etc/dovecot.conf.bak
+fi
