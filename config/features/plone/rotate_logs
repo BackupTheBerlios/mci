@@ -11,13 +11,12 @@ then
 	for i in $(find * -type d -name log -maxdepth 1 -mindepth 1)
 	do
 		cd /${SITE}/${HOST}/data/zope/${i}
-		echo ${i}
-		if [ -f "event.log" ] && [ $(ls -sk event.log | cut -d" " -f1) -gt 400 ]
+		if [ -f "event.log" ] && [ $(ls -sk event.log | sed -e "s|^ ||g" | cut -d" " -f1) -gt 400 ]
 		then 
 			cp event.log event.log.old
 			echo "" > event.log
 		fi
-                if [ -f "Z2.log" ] && [ $(ls -sk Z2.log | cut -d" " -f1) -gt 400 ]
+                if [ -f "Z2.log" ] && [ $(ls -sk Z2.log | sed -e "s|^ ||g" | cut -d" " -f1) -gt 400 ]
                 then
                         cp Z2.log Z2.log.old
                         echo "" > Z2.log
