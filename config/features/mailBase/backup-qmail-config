@@ -2,7 +2,7 @@
 
 SITE=$(hostname | cut -d"." -f2-)
 HOST=$(hostname -s)
-RSYNC_OPTIONS="--quiet --recursive"
+RSYNC_OPTIONS="--quiet --delete"
 RSYNC_RSH="ssh"
 
 if [ ! -f "/var/backups/qmail-restored" ]
