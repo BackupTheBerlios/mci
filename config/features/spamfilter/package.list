@@ -1,0 +1,7 @@
+dspam:mail/dspam|pgsql
+gd:graphics/gd
+p5-GD:graphics/p5-GD
+p5-GD-Graph:graphics/p5-GD-Graph
+p5-GD-Graph3d:graphics/p5-GD-Graph3d
+p5-GD-TextUtil:graphics/p5-GD-TextUtil
+p5-URI:www/p5-URI

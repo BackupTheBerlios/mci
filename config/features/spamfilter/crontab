@@ -1,0 +1,5 @@
+0 0 * * *	/usr/local/bin/dspam_clean
+6 6 4 * *	psql -f /$(hostname | cut -d"." -f2-)/me/data/dspam/purge.sql dspam dspam
+14 * * * *	/bin/ksh -l /var/cfengine/inputs/config/features/mailServer/reclass.sh
+24 4 4 * *	 psql -c 'VACUUM;' dspam dspam
+
