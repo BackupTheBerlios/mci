@@ -17,7 +17,7 @@ then
 	exit 0 
 fi
 
-rm /etc/crontab.d/tinydns
+rm -f /etc/crontab.d/tinydns
 touch /etc/crontab.d/tinydns
 
 cd ${BASE_CONFIG}/server

@@ -17,7 +17,7 @@ then
 	exit 0 
 fi
 
-rm /etc/crontab.d/dnscache
+rm -f /etc/crontab.d/dnscache
 touch /etc/crontab.d/dnscache
 
 cd ${BASE_CONFIG}/cache
