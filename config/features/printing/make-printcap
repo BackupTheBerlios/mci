@@ -10,12 +10,25 @@ for i in $printers
 do
 	cd /var/cfengine/inputs/config/hosts/$site
 	HOST=$(find * -type d -name $i | grep -v CVS | cut -d"/" -f1 | head -1)
-	echo "$i|$(cat $HOST/printing/printer/$i/DESCR):\\" >> /etc/printcap.tmp
-	if [ -d "/var/cfengine/inputs/config/hosts/$site/$(hostname -s)/printing/printer/$i" ]
+	DESCR=""
+	if [ -f "${HOST}/printing/printer/${i}/DESCR" ]
 	then
+		DESCR=$(cat ${HOST}/printing/printer/${i}/DESCR)
+	fi
+	echo "${i}|${DESCR}:\\" >> /etc/printcap.tmp
+	if [ -d "/var/cfengine/inputs/config/hosts/${site}/$(hostname -s)/printing/printer/$i" ]
+	then
+		cd /var/cfengine/inputs/config/hosts/${site}/$(hostname -s)/printing/printer/${i}
+		for j in $(find * -type f -maxdepth 0 | grep -v CVS | grep -v DESCR | grep -v IS_MS | grep -v PPD)
+		do
+			echo "${j}=$(cat ${j}):\\" >> /etc/printcap.tmp
+		done	
+		mkdir -p /etc/pf.conf.d/intranet/tcp-ipv4
+		touch /etc/pf.conf.d/intranet/tcp-ipv4/515
+		mkdir -p /etc/pf.conf.d/vpn/tcp-ipv4
+		touch /etc/pf.conf.d/vpn/tcp-ipv4/515
 		echo "TODO: IMPLEMENT LOCAL PRINTING CASE -- with filter"
 		echo "TODO: create _win entry without filter"
-		echo "TODO: allow access from intranet and vpn (tcp/515)"
 	else
 		echo "lp=:\\" >> /etc/printcap.tmp
 		echo "rp=$i:\\" >> /etc/printcap.tmp
