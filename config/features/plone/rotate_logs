@@ -5,12 +5,22 @@ HOST=$(hostname -s)
 
 cd /${SITE}/${HOST}/data
 
-if [ -d "zope" ] && [ $(find zope -type d -mindepth 1 -maxdepth 1 | wc -l) ]
+if [ -d "zope" ] && [ $(find zope -type d -name log -mindepth 2 -maxdepth 2 | wc -l) ]
 then
 	cd zope
-	for i in $(find * -type d -maxdepth 0 -mindepth 0)
+	for i in $(find * -type d -name log -maxdepth 1 -mindepth 1)
 	do
-		(cd ${i}/log; if [ -f "event.log" ] && [ $(ls -sk event.log | cut -d" " -f1) -gt 400 ]; then cp event.log event.log.old; echo "" > event.log; fi)
-		(cd ${i}/log; if [ -f "Z2.log" ] && [ $(ls -sk Z2.log | cut -d" " -f1) -gt 400 ]; then cp Z2.log Z2.log.old; echo "" > Z2.log; fi)
+		cd /${SITE}/${HOST}/data/zope/${i}
+		echo ${i}
+		if [ -f "event.log" ] && [ $(ls -sk event.log | cut -d" " -f1) -gt 400 ]
+		then 
+			cp event.log event.log.old
+			echo "" > event.log
+		fi
+                if [ -f "Z2.log" ] && [ $(ls -sk Z2.log | cut -d" " -f1) -gt 400 ]
+                then
+                        cp Z2.log Z2.log.old
+                        echo "" > Z2.log
+                fi
 	done
 fi
