@@ -1,0 +1,15 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+
+cd /${SITE}/${HOST}/data
+
+if [ -d "zope" ] && [ $(find zope -type d -mindepth 1 -maxdepth 1 | wc -l) ]
+then
+	cd zope
+	for i in $(find * -type d -maxdepth 0 -mindepth 0))
+	do
+        	echo "/${SITE}/${HOST}/zope/${i}/bin/zopectl start" > /etc/rc.local.d/zope-${i}
+	done
+fi
