@@ -1,7 +1,7 @@
 #!/bin/sh
 
 HOST=$(hostname -s)
-SITE=$(hostname | cut -d" " -f2-)
+SITE=$(hostname | cut -d"." -f2-)
 
 if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/routes/ipv4" ]
 then
