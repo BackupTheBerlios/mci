@@ -117,7 +117,7 @@ do
 	touch $SEED
 	chmod 400 $SEED
 	chown named:named $SEED
-	dd if=/dev/urandom of=$SEED bs=128 count=1 2>/dev/null
+	dd if=/dev/srandom of=$SEED bs=128 count=1 2>/dev/null
 	
 	chmod -R 644 /etc/djbdns/dnscache-${IF}/root/servers/*
 
