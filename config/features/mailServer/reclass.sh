@@ -9,7 +9,6 @@ IFS="
 "
 for user in $(find * -type d -maxdepth 0 -mindepth 0)
 do
-	echo ${user}
 	cd ${BASE}
 	if [ -d "${user}/Maildir/.spam/cur" ]
 	then
