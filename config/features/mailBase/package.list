@@ -1,3 +1,4 @@
+rsync:net/rsync
 daemontools:uopp/sysutils/daemontools
 ucspi-tcp:uopp/net/ucspi-tcp
 qmail:uopp/mail/qmail

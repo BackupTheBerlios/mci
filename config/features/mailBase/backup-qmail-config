@@ -1,0 +1,23 @@
+#!/bin/sh
+
+SITE=$(hostname | cut -d"." -f2-)
+HOST=$(hostname -s)
+RSYNC_OPTIONS="--verbose --progress --recursive"
+RSYNC_RSH="ssh"
+
+if [ ! -f "/var/backups/qmail-restored" ]
+then
+	if [ -d "/${SITE}/${HOST}/data/qmail" ]
+	then
+		rsync ${RSYNC_OPTIONS} /${SITE}/${HOST}/data/qmail/ /var/qmail/ &&	
+		touch /var/backups/qmail-restored
+	fi
+	exit 0
+fi
+
+rsync $RSYNC_OPTIONS /var/qmail/alias /${SITE}/${HOST}/data/qmail/alias
+rsync $RSYNC_OPTIONS /var/qmail/control /${SITE}/${HOST}/data/qmail/control
+rsync $RSYNC_OPTIONS /var/qmail/users /${SITE}/${HOST}/data/qmail/users
+
+touch /var/backups/qmail-restored
+
