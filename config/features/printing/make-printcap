@@ -27,8 +27,8 @@ do
 		touch /etc/pf.conf.d/intranet/tcp-ipv4/515
 		mkdir -p /etc/pf.conf.d/vpn/tcp-ipv4
 		touch /etc/pf.conf.d/vpn/tcp-ipv4/515
-		echo "TODO: IMPLEMENT LOCAL PRINTING CASE -- with filter"
-		echo "TODO: create _win entry without filter"
+		#echo "TODO: IMPLEMENT LOCAL PRINTING CASE -- with filter"
+		#echo "TODO: create _win entry without filter"
 	else
 		echo "lp=:\\" >> /etc/printcap.tmp
 		echo "rp=$i:\\" >> /etc/printcap.tmp
