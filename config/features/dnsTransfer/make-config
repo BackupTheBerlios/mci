@@ -56,9 +56,9 @@ do
 	chmod 755 /etc/djbdns/axfrdns-${IF}/run
 
 	cd /service
-	ln -sf /etc/djbdns/axfrdns-${IF} axfrdns-${IF} 
+	ln -snf /etc/djbdns/axfrdns-${IF} axfrdns-${IF} 
 	cd /etc/djbdns/axfrdns-${IF}/log
-	ln -sf /var/djbdns/axfrdns-${IF} main
+	ln -snf /var/log/djbdns/axfrdns-${IF} main
 
 	echo "0 0 * * * svc -t /service/axfrdns-${IF}/log" >> /etc/crontab.d/axfrdns
 	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dnsTransfer/logging/mail_logs_axfrdns.sh ${IF}" >> /etc/crontab.d/axfrdns

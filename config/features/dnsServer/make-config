@@ -62,9 +62,9 @@ do
 	ksh /var/cfengine/inputs/config/features/dnsServer/scripts/make-data ${IF}
 	
 	cd /service
-	ln -sf /etc/djbdns/tinydns-${IF} tinydns-${IF} 
+	ln -snf /etc/djbdns/tinydns-${IF} tinydns-${IF} 
 	cd /etc/djbdns/tinydns-${IF}/log
-	ln -sf /var/djbdns/tinydns-${IF} main
+	ln -snf /var/log/djbdns/tinydns-${IF} main
 
 	echo "0 0 * * * svc -t /service/tinydns-${IF}/log" >> /etc/crontab.d/tinydns
 	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dnsServer/logging/mail_logs_tinydns.sh ${IF}" >> /etc/crontab.d/tinydns

@@ -127,9 +127,9 @@ do
 	chmod 755 /etc/djbdns/dnscache-${IF}/run
 
 	cd /service
-	ln -sf /etc/djbdns/dnscache-${IF} dnscache-${IF} 
+	ln -snf /etc/djbdns/dnscache-${IF} dnscache-${IF} 
 	cd /etc/djbdns/dnscache-${IF}/log
-	ln -sf /var/djbdns/dnscache-${IF} main
+	ln -snf /var/log/djbdns/dnscache-${IF} main
 
 	echo "0 0 * * * svc -t /service/dnscache-${IF}/log" >> /etc/crontab.d/dnscache
 	echo "11 * * * * /bin/ksh /var/cfengine/inputs/config/features/dnsCache/logging/mail_logs_dnscache.sh ${IF}" >> /etc/crontab.d/dnscache
