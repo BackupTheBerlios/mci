@@ -91,7 +91,7 @@ do
                 done
         fi
 
-	if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/cache/${IF}-ip ]
+	if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/cache/${IF}-ip" ]
 	then
 		cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/dns/cache/${IF}-ip
 		for j in $(find * -type f -maxdepth 0 -mindepth 0)
@@ -101,7 +101,7 @@ do
 		done
 	fi
 
-        if [ -d "/var/cfengine/inputs/config/sites/${SITE}/dns/cache/${IF}-ip ]
+        if [ -d "/var/cfengine/inputs/config/sites/${SITE}/dns/cache/${IF}-ip" ]
         then
                 cd /var/cfengine/inputs/config/sites/${SITE}/dns/cache/${IF}-ip
                 for j in $(find * -type f -maxdepth 0 -mindepth 0)
