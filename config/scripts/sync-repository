@@ -5,7 +5,10 @@ HOST=$(hostname -s)
 
 cd /var/cfengine/inputs/config
 
-sleep $(jot -nr 1 1 200)
+if [ "$1" != "manual" ]
+then
+	sleep $(jot -nr 1 1 800)
+fi
 
 touch /root/.cvspass
 
