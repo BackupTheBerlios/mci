@@ -1,0 +1,17 @@
+#!/bin/sh
+
+HOST=$(hostname -s)
+SITE=$(hostname | cut -d" " -f2-)
+
+if [ -d "/var/cfengine/inputs/config/hosts/${SITE}/${HOST}/routes/ipv4" ]
+then
+	rm -rf /etc/rc.local.d/routes
+	touch /etc/rc.local.d/routes
+	cd /var/cfengine/inputs/config/hosts/${SITE}/${HOST}/routes/ipv4
+	for i in $(find * -type f | grep -v CVS)
+	do
+		dest=$(echo ${i} | sed -e 's|_|/|')
+		gateway=$(cat ${i})
+		echo "route -n add -inet ${dest} ${gateway}" >> /etc/rc.local.d/routes
+	done
+fi
