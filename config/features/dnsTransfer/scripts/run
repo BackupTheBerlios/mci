@@ -1,0 +1,4 @@
+#!/bin/sh
+exec envdir ./env sh -c '
+  exec envuidgid named softlimit -d300000 tcpserver -vDRHl0X -- "$IP" 53 /usr/local/bin/axfrdns
+'
