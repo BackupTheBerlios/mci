@@ -1,0 +1,6 @@
+DocumentRoot /var/www/htdocs
+SSLEngine on
+SSLCertificateFile    /etc/ssl/certs/me.crt
+SSLCertificateKeyFile /etc/ssl/private/me.key
+
+SSLVerifyClient none
