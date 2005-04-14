@@ -1,0 +1,11 @@
+#!/bin/sh
+
+rm -f /etc/rc.local.d/mailman
+
+site=$(hostname | cut -d"." -f2-)
+host=$(hostname -s)
+
+if [ -f "/${site}/${host}/data/mailman/bin/mailmanctl" ]
+then
+	echo "/${site}/${host}/data/mailman/bin/mailmanctl start" > /etc/rc.local.d/mailman
+fi
