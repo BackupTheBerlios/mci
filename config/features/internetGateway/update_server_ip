@@ -26,6 +26,6 @@ curl -sS -T /tmp/ip.html -u $user:$passwd ${FTPHOST}
 rm /tmp/ip.html
 echo -n '<html><head><meta http-equiv="refresh" content="1; url=https://' > /tmp/webmail.html
 echo -n ${IP} >> /tmp/webmail.html
-echo ':7358/webmail"></head><body>Binnen enkele seconden wordt je doorverwezen naar login pagina ...</body></html>' >> /tmp/webmail.html
+echo ':7358/webmail/src/login.php"></head><body>Binnen enkele seconden wordt je doorverwezen naar login pagina ...</body></html>' >> /tmp/webmail.html
 curl -sS -T /tmp/webmail.html -u $user:$passwd ${FTPHOST} 
 rm /tmp/webmail.html
