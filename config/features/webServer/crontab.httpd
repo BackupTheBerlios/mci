@@ -1,2 +1,3 @@
 0 0 * * * ksh /var/cfengine/inputs/config/features/webServer/mail_errors.sh
 0 0 * * * ksh /var/cfengine/inputs/config/features/webServer/mail_ssl_errors.sh
+0 0 * * * ksh /var/cfengine/inputs/config/features/webServer/rotate_access_logs.sh
